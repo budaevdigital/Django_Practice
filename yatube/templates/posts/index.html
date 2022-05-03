@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{# Для вывода значения словаря, обращаемся к нему по ключу ({{ var_dict.key }}) #}
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+  <div class="flex justify-center">
+    <h1 class="mt-20 text-4xl">{{ title|title }}</h1>
+  </div> 
+{% endblock %}
+
+{% block content %}
+  {% if all_posts %}
+  <section class="mt-20">
+    {% for post in all_posts %}   
+      <div class="relative bg-white px-6 pt-10 pb-8 shadow-xl ring-1 
+        ring-gray-900/5 sm:mx-auto sm:max-w-5xl sm:rounded-lg ">
+        <div class="mx-auto">
+          <div class="divide-y divide-gray-300/50">
+            <div class="space-y-6 py-8 text-base leading-7 text-gray-600">
+              <p class="text-gray-900">Автор: {{ post.author.get_full_name }}</p>
+              <p>Дата публикации: {{ post.pub_date|date:"d M Y" }}</p>
+              <p>{{ post.text|truncatewords:50 }}</p>
+            </div>
+            <div class="pt-8 text-base font-semibold leading-7">
+              <p>
+                {# для получения slug, сначала обращаемся к элементу цикла (post) #}
+                {# затем, обращаемся к полю класса Post (group), которое #}
+                {# имеет взаимосвязь с экземпляром класса Group. У которого #}
+                {# есть поле (slug) в котором и содержится URL адрес #}
+                <a href="{% url 'posts:group_list' slug=post.group.slug %}" 
+                  class="text-sky-500 hover:text-sky-600">все записи группы &rarr;</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% if not forloop.last %}
+        <br>
+      {% endif %} 
+    {% endfor %}
+  </section>  
+{% endif %}  
+{% endblock %}
+
+
