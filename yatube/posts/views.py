@@ -22,3 +22,19 @@ def group_posts(request, slug):
         'select_post': posts,
     }      
     return render(request, template, context)
+
+def search(request):
+    search_keyword = request.GET.get('search', None)
+    template = 'posts/search_posts.html'
+    
+    if search_keyword:
+        search_post = Post.objects.filter(text__contains=search_keyword).select_related('author').select_related('group')
+    else:
+        search_post = None
+
+    context = {
+        'title': 'Поиск статей',
+        'posts': search_post,
+        'search_key': search_keyword
+    }
+    return render(request, template, context)

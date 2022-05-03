@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{# Для вывода значения словаря, обращаемся к нему по ключу ({{ var_dict.key }}) #}
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+  <div class="px-4 pt-5 my-5 text-center">
+    <h1 class="display-4 fw-bold">{{ title|title }}</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="">
+    <div class="card-body">
+      <form class="p-2 card" action="/search/">
+        <div class="input-group">
+          <input name="search" class="form-control" type="search" 
+            placeholder="Поиск" {% if search_key %}value="{{ search_key }}"{% endif %}>
+          <div class="input-group-append">  
+            <button class="btn btn-secondary" type="submit">Найти</button>
+          </div> 
+        </div> 
+      </form>  
+    </div>
+    <div class="container p-4">
+      {% for post in posts %}
+      <strong>
+          Автор: {{ post.author.get_full_name }}, 
+          Дата публикации: {{ post.pub_date|date:"d M Y" }}, 
+          Группа: {{ post.group.title }}
+      </strong>
+      <p>{{ post.text|linebreaksbr }}</p>
+      <hr>
+      {% endfor %}
+    </div>
+  </div>
+</div>  
+{% endblock %}
