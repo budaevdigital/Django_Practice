@@ -7,9 +7,24 @@
       </a>
 
       <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li><a href="{% url 'posts:index' %}" class="nav-link px-2 text-secondary">Главная</a></li>
-        <li><a href="{% url 'posts:search_posts' %}" class="nav-link px-2 text-white">Поиск</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">About</a></li>
+        <li><a href="{% url 'posts:index' %}" 
+          {% if title == 'Последние обновления на сайте' %}
+            class="nav-link px-2 text-secondary"
+          {% else %}
+            class="nav-link px-2 text-white"
+          {% endif %}>Главная</a></li>
+        <li><a href="{% url 'posts:search_posts' %}" 
+          {% if title == 'Поиск статей' %}
+            class="nav-link px-2 text-secondary"
+          {% else %}
+            class="nav-link px-2 text-white"
+          {% endif %}>Поиск</a></li>
+        <li><a href="#"
+          {% if 'Записи сообщества' in title %}
+            class="nav-link px-2 text-secondary"
+          {% else %}
+            class="nav-link px-2 text-white"
+          {% endif %}>Рубрики</a></li>
         <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
       </ul>
 
@@ -21,7 +36,7 @@
 
       <div class="text-end">
         <button type="button" class="btn btn-outline-light me-2">Login</button>
-        <button type="button" class="btn btn-warning">Sign-up</button>
+        <a href="{% url 'users:signup' %}"><button type="button" class="btn btn-warning">Sign-up</button></a>
       </div>
     </div>
   </div>

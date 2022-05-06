@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.views.generic import CreateView
 
 # Импортируем функцию reverse_lazy, чтобы получить URL по 
