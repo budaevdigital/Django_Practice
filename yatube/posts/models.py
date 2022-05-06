@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm
 
 User = get_user_model()
 
@@ -34,3 +35,14 @@ class Post(models.Model):
     # без этого метода, будет "Post object"
     def __str__(self):
         return f'{self.text}'
+
+
+# Создадим свой класс для формы регистрации
+# и сделаем его наследником предустановленного
+# класса UserCreationForm
+class CreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        # укажем модель, с которой связана создаваемая форма
+        model = User
+        # укажем какие поля должны быть видны в форме и в каком порядке
+        fields = ('first_name', 'last_name', 'user_name', 'email')
