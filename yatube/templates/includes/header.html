@@ -25,7 +25,9 @@
           {% else %}
             class="nav-link px-2 text-white"
           {% endif %}>Рубрики</a></li>
-        <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
+        {% if user.is_authenticated %}  
+          <li><a href="#" class="nav-link px-2 text-white">Профиль</a></li>
+        {% endif %}
       </ul>
 
       <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" action="/search/">
@@ -35,9 +37,19 @@
       </form>
 
       <div class="text-end">
-        <a href="{% url 'users:login' %}"><button type="button" class="btn btn-outline-light me-2">Вход</button></a>
-        <a href="{% url 'users:signup' %}"><button type="button" class="btn btn-warning">Регистрация</button></a>
+        {% if user.is_authenticated %}   
+	        {# Авторизованному пользователю покажем ссылки на выход и смену пароля #} 
+          <a href="{% url 'users:password_change_form' %}"><button type="button" class="btn btn-outline-light me-2">Сменить пароль</button></a>
+          <a href="{% url 'users:logged_out' %}"><button type="button" class="btn btn-warning">Выход</button></a>
+        {% else %}   
+          {# Неавторизованному покажем ссылки на регистрацию и авторизацию #} 
+          <a href="{% url 'users:login' %}"><button type="button" class="btn btn-outline-light me-2">Вход</button></a>
+          <a href="{% url 'users:signup' %}"><button type="button" class="btn btn-warning">Регистрация</button></a>          
+        {% endif %}
       </div>
     </div>
   </div>
 </header>
+
+
+
