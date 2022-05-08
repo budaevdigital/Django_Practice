@@ -10,12 +10,12 @@
 {% endblock %}
 
 {% block content %}
-  {% if select_post %}
+  {% if page_obj %}
     <section>
       <div class="container">
         <div class="card">
           <div class="container p-4">
-            {% for post in select_post %}
+            {% for post in page_obj %}
             <strong>
                 Автор: {{ post.author.get_full_name }}, 
                 Дата публикации: {{ post.pub_date|date:"d M Y" }}, 
@@ -29,6 +29,7 @@
             <hr>             
             {% endif %} 
             {% endfor %}
+            {% include 'posts/includes/paginator.html' %}
           </div>
         </div>
       </div>
