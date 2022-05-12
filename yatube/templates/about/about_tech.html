@@ -1,0 +1,42 @@
+<!-- templates/about/about_tech.html --> 
+{% extends "base.html" %} 
+
+{% block title %}
+  {{ title }}
+{% endblock %} 
+
+{% block content %} 
+<div class="px-4 pt-5 my-5 text-center">
+  <h1 class="display-4 fw-bold">{{ title|title }}</h1>
+  <p> {{ description }} </p> 
+  <div class="container">
+    <div class="card">
+      <div class="container p-4">
+        <div class="row">   
+          <h2>Вот что я умею</h2> 
+        <aside class="">     
+          <ul class="list-group list-group-flush">       
+            <li class="list-group-item">         
+              Python       
+            </li>       
+            <li class="list-group-item">       
+              Django      
+            </li>
+          </ul> 
+        </aside>  
+      </div>
+      </div>
+    </div>
+  </div> 
+{% endblock %}       
+{% comment %} 
+	Колонки с отступом сверху и снизу 
+{% endcomment %}
+
+ 
+	
+	{% comment %}   
+	Боковой блок со списком технологий     
+	Займет всю ширину блока на мобильном    
+	и 25% при размерах экрана ≥768px   
+	{% endcomment %}   

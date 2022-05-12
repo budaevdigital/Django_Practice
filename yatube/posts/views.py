@@ -1,8 +1,10 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .models import Post, Group
 
 
+@login_required()
 def index(request):
     template = 'posts/index.html'
     posts = Post.objects.order_by('-pub_date')

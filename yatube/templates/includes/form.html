@@ -1,6 +1,7 @@
 {# url с формами #}
 {% url 'users:signup' as url_signup %}
 {% url 'users:login' as url_login %}
+
 {% url 'users:password_reset_form' as url_password_reset_form %}
 {% url 'users:password_change_form' as url_password_change_form %}
 {% url 'users:password_reset_confirm' as url_password_reset_confirm %}
@@ -18,7 +19,7 @@
         <div class="card-header">
           {% if request.get_full_path == url_signup %}
             Зарегистрироваться
-          {% elif request.get_full_path == url_login %}
+          {% elif url_login in request.get_full_path %}
             Войти на сайт 
           {% elif request.get_full_path == url_password_reset_form %}
             Сброс пароля
@@ -51,7 +52,7 @@
           {% endif %}
 
           {# Делаем проверку и выведем форму только там, где это необходимо #}
-          {% if request.get_full_path == url_signup or request.get_full_path == url_login or request.get_full_path == url_password_reset_form or request.get_full_path == url_password_change_form or request.get_full_path == url_password_reset_confirm %}
+          {% if request.get_full_path == url_signup or url_login in request.get_full_path or request.get_full_path == url_password_reset_form or request.get_full_path == url_password_change_form or request.get_full_path == url_password_reset_confirm %}
             {% load user_filters %}
             {# Загружаем фильтры #}      
             {% if form.errors %}        
@@ -97,7 +98,7 @@
                 <button type="submit" class="col-md-4 btn btn-primary">
                   {% if request.get_full_path == url_signup %}
                     Зарегистрироваться
-                  {% elif request.get_full_path == url_login %}
+                  {% elif url_login in request.get_full_path %}
                     Войти
                   {% elif request.get_full_path == url_password_reset_form %}
                     Сбросить
@@ -109,7 +110,7 @@
                   <a href="{% url 'users:login' %}" class="pt-3 btn btn-link">
                     Уже есть аккаунт? Войти
                   </a>
-                {% elif request.get_full_path == url_login %}
+                {% elif url_login in request.get_full_path %}
                   <a href="{% url 'users:password_reset_form' %}" class="pt-3 btn btn-link">
                     Забыли пароль?             
                   </a>

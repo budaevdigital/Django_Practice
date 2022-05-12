@@ -19,12 +19,24 @@
           {% else %}
             class="nav-link px-2 text-white"
           {% endif %}>Поиск</a></li>
+        <li><a href="{% url 'about:tech' %}"
+          {% if 'технологии' in title %}
+            class="nav-link px-2 text-secondary"
+          {% else %}
+            class="nav-link px-2 text-white"
+          {% endif %}>Инструменты</a></li>
+        <li><a href="{% url 'about:author' %}"
+          {% if 'Обо мне' in title %}
+            class="nav-link px-2 text-secondary"
+          {% else %}
+            class="nav-link px-2 text-white"
+          {% endif %}>Обо мне</a></li>
         <li><a href="#"
           {% if 'Записи сообщества' in title %}
             class="nav-link px-2 text-secondary"
           {% else %}
             class="nav-link px-2 text-white"
-          {% endif %}>Рубрики</a></li>
+          {% endif %}>Рубрики</a></li>    
         {% if user.is_authenticated %}  
           <li><a href="#" class="nav-link px-2 text-white">Профиль</a></li>
         {% endif %}
