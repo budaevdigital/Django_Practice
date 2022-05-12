@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from .models import Post, Group, User
 
 
-@login_required()
 def index(request):
     template = 'posts/group_posts.html'
     posts = Post.objects.order_by('-pub_date')
@@ -42,12 +41,14 @@ def posts_author(request, username):
     # Это аналог добавления
     # условия WHERE group_id = {group_id}
     author_posts = Post.objects.filter(author=posts).order_by('-pub_date')
+    count_author_posts = author_posts.count()
     paginator = Paginator(author_posts, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
-        'title': f'Записи автора {posts.get_full_name()}',
+        'title': f'Статьи автора {posts.get_full_name()}',
         'page_obj': page_obj,
+        'count_posts': count_author_posts,
     }
     return render(request, template, context)
 
@@ -90,5 +91,6 @@ def post_detail(request, slug, post_id):
     return render(request, template, context)
 
 
+@login_required()
 def user_profile(request, username):
     pass
