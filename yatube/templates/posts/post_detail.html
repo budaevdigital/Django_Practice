@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% if page_obj %}
+{# Для вывода значения словаря, обращаемся к нему по ключу ({{ var_dict.key }}) #}
+{# Первые 30 букв поста #}
+{% block title %}
+  {% for post in page_obj %}
+    {{ post.text|title|truncatewords:7 }}
+  {% endfor %}
+{% endblock %}
+
+{% block body %}
+<section>
+  <div class="container">
+    <div class="px-4 pt-5 my-5 text-center">
+      <div class="p-4 p-md-5 mb-4 text-white rounded bg-dark">
+          {% for post in page_obj %}
+        <h1 class="display-4 fw-bold">
+          {{ post.text|title|truncatewords:14 }}
+        </h1>
+        <div class="px-4 pt-5">
+          <p class="blog-post-meta text-muted">
+          автор: <a class="text-white text-muted" href="{% url 'posts:posts_author' username=post.author%}"<b>{{ post.author.get_full_name }}</b></a> | 
+          дата публикации: <b>{{ post.pub_date|date:"d M Y" }}</b> | 
+          рубрика: <a class="text-white text-muted" href="{% url 'posts:group_list' slug=post.group.slug %}"<b>{{ post.group.title }}</b></a>
+          </p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section> 
+{% endblock %}
+
+{% block content %}
+    <section>
+      <div class="container">
+          <div class="container p-4">
+            {% for post in page_obj %}
+              <p>{{ post.text|linebreaksbr }}</p>
+                {% if not forloop.last %}
+                  <hr>             
+                {% endif %} 
+            {% endfor %}
+          </div>
+      </div>
+    </section>  
+  {% endblock %}
+{% endif %}  

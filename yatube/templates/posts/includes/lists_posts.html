@@ -1,0 +1,40 @@
+<div class="album py-5">
+  <div class="container">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+      {% for post in page_obj %}
+        <div class="col ">
+          <div class="card shadow-sm d-flex align-content-stretch flex-wrap" >
+            <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false">
+              <rect width="100%" height="100%" fill="#55595c"></rect>
+              <text class="text-end" x="75%" y="15%" fill="#eceeef" dy=".3em">
+                {# Здесь указывается рубрика #}
+                <a class="p2" style="color:white; text-decoration:none;" href="{% url 'posts:group_list' slug=post.group.slug %}">
+                  {{ post.group.title }}
+                </a>
+              </text>
+            </svg>
+            <div class="card-body">
+              <h3 class="mb-0">{{ post.text|title|truncatewords:7 }}</h3>
+              <p class="card-text">
+                {{ post.text|linebreaksbr|truncatewords:25 }}
+              </p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group">
+                  <a href="{% url 'posts:post_detail' slug=post.group.slug post_id=post.pk %}" 
+                    class="text-sky-500 hover:text-sky-600">
+                    <button type="button" class="btn btn-m btn-outline-secondary">Читать &rarr;</button>
+                  </a>
+                </div>
+                <small class="blog-post-meta text-muted inline-item">
+                  {# Дата и автор #}
+                  {{ post.pub_date|date:"d M Y" }} 
+                  <a class="text-muted" href="{% url 'posts:posts_author' username=post.author%}" <b> {{ post.author.get_full_name }}</b></a>
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

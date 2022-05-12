@@ -23,20 +23,8 @@
         </div> 
       </form>  
     </div>
-    <div class="container p-4">
-      {% for post in page_obj %}
-      <strong>
-          Автор: {{ post.author.get_full_name }}, 
-          Дата публикации: {{ post.pub_date|date:"d M Y" }}, 
-          Группа: {{ post.group.title }}
-      </strong>
-      <p>{{ post.text|linebreaksbr }}</p>
-      <a href="{% url 'posts:group_list' slug=post.group.slug %}" 
-      class="text-sky-500 hover:text-sky-600">все записи группы &rarr;</a>
-      <hr>
-      {% endfor %}
-      {% include 'posts/includes/paginator.html' %}
-    </div>
+    {% include 'posts/includes/lists_posts.html' %}
+    {% include 'posts/includes/paginator.html' %}
   </div>
-</div>  
+</div>
 {% endblock %}

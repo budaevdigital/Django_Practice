@@ -1,12 +1,12 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Post, Group
+from .models import Post, Group, User
 
 
 @login_required()
 def index(request):
-    template = 'posts/index.html'
+    template = 'posts/group_posts.html'
     posts = Post.objects.order_by('-pub_date')
     paginator = Paginator(posts, 7)
     page_number = request.GET.get('page')
@@ -25,11 +25,28 @@ def group_posts(request, slug):
     # Это аналог добавления
     # условия WHERE group_id = {group_id}
     posts = Post.objects.filter(group=group).order_by('-pub_date')
-    paginator = Paginator(posts, 7)
+    paginator = Paginator(posts, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
-        'title': f'Записи сообщества #{group.title}',
+        'title': f'Записи сообщества: {group.title}',
+        'page_obj': page_obj,
+    }
+    return render(request, template, context)
+
+
+def posts_author(request, username):
+    template = 'posts/group_posts.html'
+    posts = get_object_or_404(User, username=username)
+    # Метод .filter позволяет ограничить поиск по критериям.
+    # Это аналог добавления
+    # условия WHERE group_id = {group_id}
+    author_posts = Post.objects.filter(author=posts).order_by('-pub_date')
+    paginator = Paginator(author_posts, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'title': f'Записи автора {posts.get_full_name()}',
         'page_obj': page_obj,
     }
     return render(request, template, context)
@@ -43,7 +60,7 @@ def search(request):
         search_post = Post.objects.filter(
             text__contains=search_keyword).select_related(
                 'author').select_related('group')
-        paginator = Paginator(search_post, 7)
+        paginator = Paginator(search_post, 9)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
     else:
@@ -55,3 +72,23 @@ def search(request):
         'search_key': search_keyword
     }
     return render(request, template, context)
+
+
+def post_detail(request, slug, post_id):
+    template = 'posts/post_detail.html'
+    group = get_object_or_404(Group, slug=slug)
+    # Метод .filter позволяет ограничить поиск по критериям.
+    # Это аналог добавления
+    # условия WHERE group_id = {group_id}
+    if post_id and slug:
+        posts = Post.objects.filter(group=group).filter(pk=post_id)
+        context = {
+            'page_obj': posts,
+        }
+    else:
+        context = None
+    return render(request, template, context)
+
+
+def user_profile(request, username):
+    pass
