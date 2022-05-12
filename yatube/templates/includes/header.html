@@ -1,67 +1,59 @@
+{% with request.resolver_match.view_name as view_name %}  
+
 <header class="p-3 bg-dark text-white">
-  <div class="container">
-    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-      <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" aria-label="Eighth navbar example">
+    <div class="container">
+      <a href="/" class="navbar-brand d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
         {% load static %}
         <img src="{% static 'img/logo.png' %}" alt="Logo" style="max-height: 2.5rem;" class="bi me-2"> 
       </a>
-
-      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-        <li><a href="{% url 'posts:index' %}" 
-          {% if title == 'Последние обновления на сайте' %}
-            class="nav-link px-2 text-secondary"
-          {% else %}
-            class="nav-link px-2 text-white"
-          {% endif %}>Главная</a></li>
-        <li><a href="{% url 'posts:search_posts' %}" 
-          {% if title == 'Поиск статей' %}
-            class="nav-link px-2 text-secondary"
-          {% else %}
-            class="nav-link px-2 text-white"
-          {% endif %}>Поиск</a></li>
-        <li><a href="{% url 'about:tech' %}"
-          {% if 'технологии' in title %}
-            class="nav-link px-2 text-secondary"
-          {% else %}
-            class="nav-link px-2 text-white"
-          {% endif %}>Инструменты</a></li>
-        <li><a href="{% url 'about:author' %}"
-          {% if 'Обо мне' in title %}
-            class="nav-link px-2 text-secondary"
-          {% else %}
-            class="nav-link px-2 text-white"
-          {% endif %}>Обо мне</a></li>
-        <li><a href="#"
-          {% if 'Записи сообщества' in title %}
-            class="nav-link px-2 text-secondary"
-          {% else %}
-            class="nav-link px-2 text-white"
-          {% endif %}>Рубрики</a></li>    
-        {% if user.is_authenticated %}  
-          <li><a href="#" class="nav-link px-2 text-white">Профиль</a></li>
-        {% endif %}
-      </ul>
-
-      <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" action="/search/">
-        <input name="search"  type="search" class="form-control form-control-dark" 
-          placeholder="Поиск..." aria-label="Поиск" 
-          {% if search_key %}value="{{ search_key }}"{% endif %}>
-      </form>
-
-      <div class="text-end">
-        {% if user.is_authenticated %}   
-	        {# Авторизованному пользователю покажем ссылки на выход и смену пароля #} 
-          <a href="{% url 'users:password_change_form' %}"><button type="button" class="btn btn-outline-light me-2">Сменить пароль</button></a>
-          <a href="{% url 'users:logged_out' %}"><button type="button" class="btn btn-warning">Выход</button></a>
-        {% else %}   
-          {# Неавторизованному покажем ссылки на регистрацию и авторизацию #} 
-          <a href="{% url 'users:login' %}"><button type="button" class="btn btn-outline-light me-2">Вход</button></a>
-          <a href="{% url 'users:signup' %}"><button type="button" class="btn btn-warning">Регистрация</button></a>          
-        {% endif %}
+      <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <div class="navbar-collapse collapse" id="navbarsExample07" style="">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a href="{% url 'posts:index' %}" class="nav-link px-2 
+            {% if view_name  == 'posts:index' %}text-white{% else %} text-secondary {% endif %}">Главная</a></li>
+          <li class="nav-item"><a href="{% url 'about:tech' %}" class="nav-link px-2 
+            {% if view_name  == 'about:tech' %}text-white{% else %} text-secondary {% endif %}">Инструменты</a></li>
+          <li class="nav-item"><a href="{% url 'about:author' %}" class="nav-link px-2 
+            {% if view_name  == 'about:author' %}text-white{% else %} text-secondary {% endif %}">Обо мне</a></li>
+          {% if user.is_authenticated %} 
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle {% if view_name  == 'about:author' %}text-white{% else %} text-secondary {% endif %}"
+              href="#" id="dropdown07" data-bs-toggle="dropdown" aria-expanded="false">Профиль</a>
+            <ul class="dropdown-menu" aria-labelledby="dropdown07">
+              <li><a class="dropdown-item" href="#">Настройки</a></li>
+              <li><a class="dropdown-item" href="#">Смена пароля</a></li>
+              <li><a class="dropdown-item" href="#">Котики</a></li>
+            </ul>
+          </li>
+          {% endif %}
+        </ul>
+  
+        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" action="/search/">
+          <input name="search"  type="search" class="form-control form-control-dark" 
+            placeholder="Поиск..." aria-label="Поиск" 
+            {% if search_key %}value="{{ search_key }}"{% endif %}>
+        </form>
+  
+        <div class="text-end">
+          {% if user.is_authenticated %}   
+            {# Авторизованному пользователю покажем ссылки на выход и смену пароля #} 
+            <a href="{% url 'users:password_change_form' %}"><button type="button" class="btn btn-outline-light me-2">Сменить пароль</button></a>
+            <a href="{% url 'users:logged_out' %}"><button type="button" class="btn btn-warning">Выход</button></a>
+          {% else %}   
+            {# Неавторизованному покажем ссылки на регистрацию и авторизацию #} 
+            <a href="{% url 'users:login' %}"><button type="button" class="btn btn-outline-light me-2">Вход</button></a>
+            <a href="{% url 'users:signup' %}"><button type="button" class="btn btn-warning">Регистрация</button></a>          
+          {% endif %}
+        </div>
+  
       </div>
     </div>
-  </div>
+  </nav>
+
 </header>
-
-
-
+{% endwith %} 

@@ -20,7 +20,10 @@
       crossorigin="anonymous"> 
     {% endcomment %}
     {# <script src="https://cdn.tailwindcss.com"></script> #}
-  {% endblock %}    
+  {% endblock %} 
+  {% block link-js %}
+    <script src="{% static '/js/bootstrap.min.js' %}" crossorigin="anonymous"></script>
+  {% endblock %}      
     <title>{% block title %}{% endblock %}</title>
   {% block head %}{% endblock %}
 </head>
