@@ -20,10 +20,21 @@
         <div class="px-4 pt-5">
           <p class="blog-post-meta text-muted">
           автор: <a class="text-white text-muted" href="{% url 'posts:posts_author' username=post.author%}"<b>{{ post.author.get_full_name }}</b></a> | 
-          дата публикации: <b>{{ post.pub_date|date:"d M Y" }}</b> | 
-          рубрика: <a class="text-white text-muted" href="{% url 'posts:group_list' slug=post.group.slug %}"<b>{{ post.group.title }}</b></a>
+          дата публикации: <b>{{ post.pub_date|date:"d M Y" }}</b>
+          {% if post.group %}
+             | рубрика: <a class="text-white text-muted" href="{% url 'posts:group_list' slug=post.group.slug %}"<b>{{ post.group.title }}</b></a>
+          {% endif %}
           </p>
         </div>
+        {% if is_author %}
+          {% if user.is_authenticated %}
+          <div class="px-4 pt-5">
+            <p class="blog-post-meta text-muted">
+              <a class="text-white text-muted" href="{% url 'posts:post_edit' post_id=post.pk %}"<b>Редактировать запись</b></a>
+            </p>
+          </div>
+          {% endif %}
+        {% endif %}
       {% endfor %}
     </div>
   </div>

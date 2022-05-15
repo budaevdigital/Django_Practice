@@ -14,4 +14,9 @@ urlpatterns = [
          views.posts_author, name='posts_author'),
     path('group/<slug:slug>/<int:post_id>/',
          views.post_detail, name='post_detail'),
+    path('group/<int:post_id>/',
+         views.post_detail_whithout_group, name='post_detail_whithout_group'),
+    path('group/<int:post_id>/edit',
+         views.post_edit, name='post_edit'),
+    path('create/', views.post_create, name='post_create'),
 ]

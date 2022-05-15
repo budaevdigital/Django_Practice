@@ -8,9 +8,11 @@
               <rect width="100%" height="100%" fill="#55595c"></rect>
               <text class="text-end" x="75%" y="15%" fill="#eceeef" dy=".3em">
                 {# Здесь указывается рубрика #}
-                <a class="p2" style="color:white; text-decoration:none;" href="{% url 'posts:group_list' slug=post.group.slug %}">
-                  {{ post.group.title }}
-                </a>
+                {% if post.group %}   
+                  <a class="p2" style="color:white; text-decoration:none;" href="{% url 'posts:group_list' slug=post.group.slug %}">
+                    {{ post.group.title }}
+                  </a>
+                {% endif %}
               </text>
             </svg>
             <div class="card-body">
@@ -20,7 +22,11 @@
               </p>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
-                  <a href="{% url 'posts:post_detail' slug=post.group.slug post_id=post.pk %}" 
+                    {% if post.group %}
+                      <a href="{% url 'posts:post_detail' slug=post.group.slug post_id=post.pk %}"
+                    {% else %} 
+                      <a href="{% url 'posts:post_detail_whithout_group' post_id=post.pk %}"
+                    {% endif %}
                     class="text-sky-500 hover:text-sky-600">
                     <button type="button" class="btn btn-m btn-outline-secondary">Читать &rarr;</button>
                   </a>

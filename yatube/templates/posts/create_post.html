@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{# Для вывода значения словаря, обращаемся к нему по ключу ({{ var_dict.key }}) #}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+	{% if user.is_authenticated %}  
+		{% include 'includes/form.html' %}
+	{% endif %}
+{% endblock %}

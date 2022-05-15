@@ -3,6 +3,31 @@
 {# Для вывода значения словаря, обращаемся к нему по ключу ({{ var_dict.key }}) #}
 {% block title %}{{ title }}{% endblock %}
 
+
+<section class="bg-light">
+  {% block body %}
+    <div class="px-4 pt-5 my-5 text-center">
+      <h1 class="display-4 fw-bold">
+        {% if  count_posts %}
+          {{ title|title  }} ({{ count_posts }} статей)
+        {% else %}
+          {{ title|title }} 
+        {% endif %}
+      </h1>
+    </div>
+  {% endblock %}
+
+  {% block content %}
+    {% include 'posts/includes/lists_posts.html' %}
+</section> 
+{% include 'posts/includes/paginator.html' %}
+{% endblock %}
+
+
+
+
+
+{% comment "" %}
 {% block body %}
   <div class="px-4 pt-5 my-5 text-center">
     <h1 class="display-4 fw-bold">{{ title|title }}</h1>
@@ -36,3 +61,4 @@
     </section>  
   {% endif %}  
 {% endblock %}
+{% endcomment %}

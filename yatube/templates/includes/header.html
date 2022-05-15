@@ -26,7 +26,7 @@
               href="#" id="dropdown07" data-bs-toggle="dropdown" aria-expanded="false">Профиль</a>
             <ul class="dropdown-menu" aria-labelledby="dropdown07">
               <li><a class="dropdown-item" href="#">Настройки</a></li>
-              <li><a class="dropdown-item" href="#">Смена пароля</a></li>
+              <li><a class="dropdown-item" href="{% url 'users:password_change_form' %}">Смена пароля</a></li>
               <li><a class="dropdown-item" href="#">Котики</a></li>
             </ul>
           </li>
@@ -42,7 +42,7 @@
         <div class="text-end">
           {% if user.is_authenticated %}   
             {# Авторизованному пользователю покажем ссылки на выход и смену пароля #} 
-            <a href="{% url 'users:password_change_form' %}"><button type="button" class="btn btn-outline-light me-2">Сменить пароль</button></a>
+            <a href="{% url 'posts:post_create' %}"><button type="button" class="btn btn-outline-light me-2">Новая статья</button></a>
             <a href="{% url 'users:logged_out' %}"><button type="button" class="btn btn-warning">Выход</button></a>
           {% else %}   
             {# Неавторизованному покажем ссылки на регистрацию и авторизацию #} 
