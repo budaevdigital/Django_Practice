@@ -2,6 +2,19 @@ from django import forms
 
 
 def validate_not_empty_or_less(value):
+    """
+    Функция-валидатор, которая проверяет получаемое значение на
+    количество символов, и возвращает ошибку в форму,
+    если это значение пустое или меньше 30 символов.
+
+    :param value: str
+    :return: None
+
+    Doctest
+    -------
+    >>> validate_not_empty_or_less('01234567890qwertyuiop[]aggghhjjkkll;l;')
+
+    """
 
     if value == '' or value is None:
         raise forms.ValidationError(
