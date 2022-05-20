@@ -152,14 +152,17 @@ def post_edit(request, post_id):
             return render(request, template, context)
     # Если пользователю не принаджлежит пост - делаем редирект
     else:
-        if post.group.slug:
-            slug = post.group.slug
-            return redirect('posts:post_detail',
-                            slug=slug,
-                            post_id=post_id)
-        else:
-            return redirect('posts:post_detail_whithout_group',
-                            post_id=post_id)
+        return redirect('posts:post_detail_whithout_group',
+                        post_id=post_id)
+
+        # if post.group.slug is None:
+        #     return redirect('posts:post_detail_whithout_group',
+        #                     post_id=post_id)
+        # else:
+        #     slug = post.group.slug
+        #     return redirect('posts:post_detail',
+        #                     slug=slug,
+        #                     post_id=post_id)
 
 
 @login_required()
