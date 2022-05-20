@@ -36,8 +36,8 @@ class StaticURLTests(TestCase):
         status_response = self.unauth_client.get('/')
         # тестрируем код ответа - тест будет завален, если код != 200
         self.assertEqual(status_response.status_code, 200,
-            f'{status_response.status_code=} код ответа сервера. '
-            f'Главная страница недоступна!')
+                         f'{status_response.status_code=} код ответа сервера. '
+                         f'Главная страница недоступна!')
 
     def test_about_authorpage(self):
         """
@@ -47,8 +47,8 @@ class StaticURLTests(TestCase):
         status_response = self.unauth_client.get('/about/author/')
         # тестрируем код ответа - тест будет завален, если код != 200
         self.assertEqual(status_response.status_code, 200,
-            f'{status_response.status_code=} код ответа сервера. '
-            f'Страница "Обо мне" недоступна!')
+                         f'{status_response.status_code=} код ответа сервера. '
+                         f'Страница "Обо мне" недоступна!')
 
     def test_about_techpage(self):
         """
@@ -58,8 +58,8 @@ class StaticURLTests(TestCase):
         status_response = self.unauth_client.get('/about/tech/')
         # тестрируем код ответа - тест будет завален, если код != 200
         self.assertEqual(status_response.status_code, 200,
-            f'{status_response.status_code=} код ответа сервера. '
-            f'Страница "Обо мне" недоступна!')
+                         f'{status_response.status_code=} код ответа сервера. '
+                         f'Страница "Обо мне" недоступна!')
 
 
 class TaskURLTests(TestCase):
@@ -71,12 +71,12 @@ class TaskURLTests(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         # Создаём две записи пользователей в БД
-        # первый-автор статьи для проверки доступа 
+        # первый-автор статьи для проверки доступа
         # к странице редактирования своего поста
         cls.auth_user_author = User.objects.create_user(
             username='test_user_author')
 
-        # второй-просто авторизованный пользователь        
+        # второй-просто авторизованный пользователь
         cls.auth_user = User.objects.create_user(
             username='test_user')
 
@@ -90,19 +90,22 @@ class TaskURLTests(TestCase):
         # создадим два поста в модели Post для проведения тестов
         # 1-без Group(slug-рубрики)
         cls.post_one = Post.objects.create(
-            text='Подумайте перед составлением словаря с шаблонами и адресамиии.',
+            text=('Подумайте перед составлением '
+                  'словаря с шаблонами и адресамиии.'),
             author=cls.auth_user
         )
 
         # 2-с Group(slug-рубрикой)
         cls.post_two = Post.objects.create(
-            text='Подумайте перед составлением словаря с шаблонами и адресамиии.',
+            text=('Подумайте перед составлением'
+                  ' словаря с шаблонами и адресамиии.'),
             author=cls.auth_user_author,
             group=cls.group_for_test
         )
 
         # создаём 3 клиентов
-        # первый-неавторизованный. Для проверки доступа там, где требуется авторизация
+        # первый-неавторизованный. Для проверки доступа там,
+        # где требуется авторизация
         cls.quest_client = Client()
         # второй-авторизованный автор стать. Для проверки редактирования поста
         cls.authorized_client_auth_user_author = Client()
@@ -124,13 +127,15 @@ class TaskURLTests(TestCase):
             # список постов в рубрике / доступ-всем
             f'/group/{self.group_for_test.slug}/': 'posts/group_posts.html',
             # список постов определённого автора / доступ-всем
-            f'/profile/{self.auth_user_author.username}/posts/': 'posts/group_posts.html',
+            (f'/profile/{self.auth_user_author.username}'
+             '/posts/'): 'posts/group_posts.html',
             # поиск постов / доступ-всем
             '/search/': 'posts/search_posts.html',
             # чтение поста без рубрики / доступ-всем
             f'/group/{self.post_one.pk}': 'posts/post_detail.html',
             # чтение поста с рубрикой / доступ-всем
-            f'/group/{self.group_for_test.slug}/{self.post_two.pk}/': 'posts/post_detail.html',
+            (f'/group/{self.group_for_test.slug}'
+             f'/{self.post_two.pk}/'): 'posts/post_detail.html',
             # редактирование поста / доступ-авторизированному автору поста
             f'/group/{self.post_two.pk}/edit/': 'posts/create_post.html',
             # создание поста / доступ-авторизированному пользователю
@@ -146,7 +151,10 @@ class TaskURLTests(TestCase):
                 self.assertTemplateUsed(response, template)
 
     def test_pages_exists_at_desired_location(self):
-        """Тестируем страницы на доступность для неавторизованного пользователя"""
+        """
+        Тестируем страницы на доступность
+        для неавторизованного пользователя
+        """
         templates_url_names = {
             '': STATUS_202,
             # список постов в рубрике / доступ-всем
@@ -158,7 +166,8 @@ class TaskURLTests(TestCase):
             # чтение поста без рубрики / доступ-всем
             f'/group/{self.post_one.pk}': STATUS_202,
             # чтение поста с рубрикой / доступ-всем
-            f'/group/{self.group_for_test.slug}/{self.post_two.pk}/': STATUS_202,
+            (f'/group/{self.group_for_test.slug}'
+             f'/{self.post_two.pk}/'): STATUS_202,
         }
 
         for url, status in templates_url_names.items():

@@ -1,5 +1,4 @@
 # Импортируем из приложения django.contrib.auth нужный view-класс
-from multiprocessing import context
 from django.contrib.auth.views import (LogoutView, LoginView,
                                        PasswordChangeView,
                                        PasswordChangeDoneView,
