@@ -32,7 +32,7 @@ class TaskURLTestsUsers(TestCase):
         # второй-авторизованный автор стать. Для проверки редактирования поста
         cls.authorized_client = Client()
 
-        # Авторизовываем клиентов auth_user
+        # Авторизовываем клиента auth_user
         cls.authorized_client.force_login(cls.auth_user)
 
     def test_auth_urls_for_auth_client(self):
@@ -54,7 +54,6 @@ class TaskURLTestsUsers(TestCase):
                 # тестируем все страницы, поэтому указываем а
                 # вторизованного пользователя
                 response = self.authorized_client.get(url)
-                print(f'{response} | {template} | {url}')
                 self.assertTemplateUsed(response, template)
 
     def test_status_auth_urls_for_quest_client(self):
@@ -76,7 +75,6 @@ class TaskURLTestsUsers(TestCase):
                 # тестируем все страницы, поэтому указываем а
                 # вторизованного пользователя
                 response = self.authorized_client.get(url)
-                print(f'{response} | {status} | {url}')
                 self.assertEqual(response.status_code, status)
 
     def test_redirect_anonymous_to_login_page(self):
@@ -113,22 +111,3 @@ class TaskURLTestsUsers(TestCase):
                 self.assertRedirects(response,
                                      f'{redirect}')
                 self.assertEqual(response.status_code, status)
-
-    # TODO - доделать тесты
-
-    # def test_redirect_anonymous_to_login_page(self):
-    #     """
-    #     Тестируем редирект анонимного пользователя на страницу логина
-    #     """
-    #     login_url = '/auth/login/'
-    #     redirect_back = '?next='
-    #     url_for_redirect = {
-    #         reverse('users:logged_out'): STATUS_302,
-    #     }
-    #     for url, status in url_for_redirect.items():
-    #         with self.subTest(url=url):
-    #             # проверка с неавторизованным пользователем
-    #             response = self.quest_client.get(url)
-    #             self.assertRedirects(response,
-    #                                  f'{login_url}{redirect_back}{url}')
-    #             self.assertEqual(response.status_code, status)

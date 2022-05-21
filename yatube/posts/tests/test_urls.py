@@ -2,64 +2,14 @@
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from http import HTTPStatus
+from django.urls import reverse
 from posts.models import Group, Post
 
-STATUS_202 = HTTPStatus.OK  # Переход на страницу
+STATUS_200 = HTTPStatus.OK  # Переход на страницу
 STATUS_404 = HTTPStatus.NOT_FOUND   # страница не найдена
 STATUS_302 = HTTPStatus.FOUND   # Редирект
 
 User = get_user_model()
-
-
-class StaticURLTests(TestCase):
-    """
-    Тестируем главную страницу сайта
-    """
-    @classmethod
-    def setUpClass(cls) -> None:
-        """
-        Фикстура класса, чтобы вызвать создание экземпляра класса
-        перед запуском всех тестов.
-        """
-        # Без этой строчки - super(StaticURLTests, ...
-        # AttributeError: type object 'StaticURLTests'
-        # has no attribute 'cls_atomics'
-        super().setUpClass()
-        # создадим экземпляр неавториззованного пользователя
-        cls.unauth_client = Client()
-
-    def test_homepage(self):
-        """
-        Тестируем главную страницу сайта на код ответа
-        """
-        # делаем запрос к странице и проверяем статус ответа
-        status_response = self.unauth_client.get('/')
-        # тестрируем код ответа - тест будет завален, если код != 200
-        self.assertEqual(status_response.status_code, 200,
-                         f'{status_response.status_code=} код ответа сервера. '
-                         f'Главная страница недоступна!')
-
-    def test_about_authorpage(self):
-        """
-        Тестируем страницу "/about/author/" сайта на код ответа
-        """
-        # делаем запрос к странице и проверяем статус ответа
-        status_response = self.unauth_client.get('/about/author/')
-        # тестрируем код ответа - тест будет завален, если код != 200
-        self.assertEqual(status_response.status_code, 200,
-                         f'{status_response.status_code=} код ответа сервера. '
-                         f'Страница "Обо мне" недоступна!')
-
-    def test_about_techpage(self):
-        """
-        Тестируем страницу "/about/tech/" сайта на код ответа
-        """
-        # делаем запрос к странице и проверяем статус ответа
-        status_response = self.unauth_client.get('/about/tech/')
-        # тестрируем код ответа - тест будет завален, если код != 200
-        self.assertEqual(status_response.status_code, 200,
-                         f'{status_response.status_code=} код ответа сервера. '
-                         f'Страница "Обо мне" недоступна!')
 
 
 class TaskURLTests(TestCase):
@@ -118,91 +68,125 @@ class TaskURLTests(TestCase):
             cls.auth_user_author)
 
     def test_urls_use_correct_template(self):
-        """Тестируем URL-адрес на использование соответствующего шаблона"""
+        """
+        Тестируем URL-адрес на использование соответствующего ШАБЛОНА
+        для АВТОРИЗОВАННОГО пользователя
+        """
         # Шаблоны по адресам
         templates_url_names = {
-            # обязательно соблюдаем слеш "/" как в urls.py
             # главная / доступ-всем
-            '': 'posts/group_posts.html',
+            reverse('posts:index'): 'posts/group_posts.html',
             # список постов в рубрике / доступ-всем
-            f'/group/{self.group_for_test.slug}/': 'posts/group_posts.html',
+            reverse(
+                'posts:group_list',
+                kwargs={'slug': self.group_for_test.slug}
+                ): 'posts/group_posts.html',
             # список постов определённого автора / доступ-всем
-            (f'/profile/{self.auth_user_author.username}'
-             '/posts/'): 'posts/group_posts.html',
+            reverse(
+                'posts:posts_author',
+                kwargs={'username': self.auth_user_author.username}
+                ): 'posts/group_posts.html',
             # поиск постов / доступ-всем
-            '/search/': 'posts/search_posts.html',
+            reverse('posts:search_posts'): 'posts/search_posts.html',
             # чтение поста без рубрики / доступ-всем
-            f'/group/{self.post_one.pk}': 'posts/post_detail.html',
+            reverse(
+                'posts:post_detail_whithout_group',
+                kwargs={'post_id': self.post_one.pk}
+                ): 'posts/post_detail.html',
             # чтение поста с рубрикой / доступ-всем
-            (f'/group/{self.group_for_test.slug}'
-             f'/{self.post_two.pk}/'): 'posts/post_detail.html',
+            reverse(
+                'posts:post_detail',
+                kwargs={'slug': self.group_for_test.slug,
+                        'post_id': self.post_two.pk}
+                ): 'posts/post_detail.html',
             # редактирование поста / доступ-авторизированному автору поста
-            f'/group/{self.post_two.pk}/edit/': 'posts/create_post.html',
+            reverse('posts:post_edit',
+                    kwargs={'post_id': self.post_two.pk}
+                    ): 'posts/create_post.html',
             # создание поста / доступ-авторизированному пользователю
-            '/create/': 'posts/create_post.html',
+            reverse('posts:post_create'): 'posts/create_post.html',
         }
 
         for url, template in templates_url_names.items():
             with self.subTest(url=url):
                 # тестируем все страницы, поэтому указываем авторизованного
-                # пользователя, автора тестируемого поста
+                # пользователя, автора тестируемого поста (post_two)
                 response = self.authorized_client_auth_user_author.get(url)
-                print(f'{response} | {template} | {url}')
                 self.assertTemplateUsed(response, template)
 
     def test_pages_exists_at_desired_location(self):
         """
-        Тестируем страницы на доступность
-        для неавторизованного пользователя
+        Тестируем страницы на доступность (СТАТУС)
+        для НЕАВТОРИЗОВАННОГО пользователя
         """
         templates_url_names = {
-            '': STATUS_202,
+            reverse('posts:index'): STATUS_200,
             # список постов в рубрике / доступ-всем
-            f'/group/{self.group_for_test.slug}/': STATUS_202,
+            reverse(
+                'posts:group_list',
+                kwargs={'slug': self.group_for_test.slug}
+                ): STATUS_200,
             # список постов определённого автора / доступ-всем
-            f'/profile/{self.auth_user_author.username}/posts/': STATUS_202,
+            reverse(
+                'posts:posts_author',
+                kwargs={'username': self.auth_user_author.username}
+                ): STATUS_200,
             # поиск постов / доступ-всем
-            '/search/': STATUS_202,
+            reverse('posts:search_posts'): STATUS_200,
             # чтение поста без рубрики / доступ-всем
-            f'/group/{self.post_one.pk}': STATUS_202,
+            reverse(
+                'posts:post_detail_whithout_group',
+                kwargs={'post_id': self.post_one.pk}
+                ): STATUS_200,
             # чтение поста с рубрикой / доступ-всем
-            (f'/group/{self.group_for_test.slug}'
-             f'/{self.post_two.pk}/'): STATUS_202,
+            reverse(
+                'posts:post_detail',
+                kwargs={'slug': self.group_for_test.slug,
+                        'post_id': self.post_two.pk}
+                ): STATUS_200,
         }
 
         for url, status in templates_url_names.items():
             with self.subTest(url=url):
                 # проверка с неавторизованным пользователем
                 response = self.quest_client.get(url)
-                print(f'{response} | {status} | {url}')
                 self.assertEqual(response.status_code, status)
 
     def test_test_redirect_from_edit_page_no_author(self):
         """
         Тестируем доступ к странице редактирования поста.
-        Проверяем редирект и статус ответа на странице
+        Проверяем РЕДИРЕКТ и СТАТУС ответа на странице
         редиректа
         """
-        redirect_url = f'/group/{self.post_two.pk}'
+        redirect_url = reverse(
+            'posts:post_detail_whithout_group', kwargs={
+                'post_id': self.post_two.pk})
+        edit_url = reverse('posts:post_edit',
+                           kwargs={'post_id': self.post_two.pk})
         # запрос от авторизованного пользователя, но не автора поста
-        response = self.authorized_client_auth_user.get(
-            f'/group/{self.post_two.pk}/edit/')
+        # на страницу редактирования поста - ожидаем редирект
+        response = (
+            self.authorized_client_auth_user.get(edit_url))
+        # ловим ошибку, если редирект произошёл на другую страницу
         self.assertRedirects(response, redirect_url)
+        # получаем код ответа редиректа
         self.assertEqual(response.status_code, STATUS_302)
 
     def test_status_edit_page_only_author(self):
         """
-        Тестируем доступ к странице редактирования поста.
-        Доступ должен быть только у автора
+        Тестируем ДОСТУП к странице редактирования поста.
+        Доступ должен быть ТОЛЬКО У АВТОРА ПОСТА
         """
         # запрос от авторизованного автора поста
+        # (authorized_client_auth_user_author)
         status_response = self.authorized_client_auth_user_author.get(
-            f'/group/{self.post_two.pk}/edit/')
-        self.assertEqual(status_response.status_code, STATUS_202)
+            reverse('posts:post_edit',
+                    kwargs={'post_id': self.post_two.pk}))
+        self.assertEqual(status_response.status_code, STATUS_200)
 
     def test_nonexistent_page(self):
         """
-        Тестрируем страницу, которая должна вернуть 404
+        Тестрируем страницу, которая должна вернуть СТАТУС 404
         """
         nonexistent_url = '/non_404_nonepages/'
         response = self.quest_client.get(nonexistent_url)
@@ -210,13 +194,15 @@ class TaskURLTests(TestCase):
 
     def test_redirect_anonymous_to_login_page(self):
         """
-        Тестируем редирект анонимного пользователя на страницу логина
+        Тестируем РЕДИРЕКТ анонимного пользователя на страницу ЛОГИНА
+        там, где требуется авторизация пользователя
         """
         login_url = '/auth/login/'
         redirect_back = '?next='
         url_for_redirect = {
-            f'/group/{self.post_two.pk}/edit/': STATUS_302,
-            '/create/': STATUS_302
+            reverse('posts:post_edit', kwargs={
+                'post_id': self.post_two.pk}): STATUS_302,
+            reverse('posts:post_create'): STATUS_302
         }
         for url, status in url_for_redirect.items():
             with self.subTest(url=url):
