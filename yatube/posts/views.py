@@ -125,7 +125,8 @@ def post_edit(request, post_id):
     template = 'posts/create_post.html'
     edit_title = 'Редактирование записи'
     post = get_object_or_404(Post, pk=post_id)
-    # return render(request, template, {'form': form, 'title': context, 'text': edit_title})
+    # return render(request, template, {'form': form, 'title':
+    # context, 'text': edit_title})
     if request.user.pk == post.author.pk:
         # Если метод POST, то передаем данные формы в класс PostForm (forms.py)
         if request.method == 'POST':
@@ -133,11 +134,13 @@ def post_edit(request, post_id):
             if form.is_valid():
                 # формируем запись для отправки в БД, но не отправляем
                 temp = form.save(commit=False)
-                # а перед отправкой указываем автора публикации (авторизованный юзер)
+                # а перед отправкой указываем автора публикации
+                # (авторизованный юзер)
                 temp.author = request.user
                 # вот теперь публикуем
                 form.save()
-                # Передаём имя пользователя в переменную, чтобы передать при редиректе
+                # Передаём имя пользователя в переменную, чтобы передать
+                # при редиректе
                 username = request.user.username
                 return redirect('posts:posts_author', username=username)
             # выводим ошибки формы, если данные  не прошли валидацию
@@ -152,17 +155,17 @@ def post_edit(request, post_id):
             return render(request, template, context)
     # Если пользователю не принаджлежит пост - делаем редирект
     else:
-        return redirect('posts:post_detail_whithout_group',
-                        post_id=post_id)
-
-        # if post.group.slug is None:
-        #     return redirect('posts:post_detail_whithout_group',
-        #                     post_id=post_id)
-        # else:
-        #     slug = post.group.slug
-        #     return redirect('posts:post_detail',
-        #                     slug=slug,
-        #                     post_id=post_id)
+        try:
+            slug = post.group.slug
+            return redirect('posts:post_detail',
+                            slug=slug,
+                            post_id=post_id)
+        # если "AttributeError: 'NoneType' object has no attribute 'slug'"
+        # у поста нету slug (group), то отлавливаем NoneType
+        # (ошибку AttributeError) и делаем редирект на страницу без slug
+        except AttributeError:
+            return redirect('posts:post_detail_whithout_group',
+                            post_id=post_id)
 
 
 @login_required()
@@ -176,11 +179,13 @@ def post_create(request):
         if form.is_valid():
             # формируем запись для отправки в БД, но не отправляем
             temp = form.save(commit=False)
-            # а перед отправкой указываем автора публикации (авторизованный юзер)
+            # а перед отправкой указываем автора
+            # публикации (авторизованный юзер)
             temp.author = request.user
             # вот теперь публикуем
             form.save()
-            # Передаём имя пользователя в переменную, чтобы передать при редиректе
+            # Передаём имя пользователя в переменную, чтобы
+            # передать при редиректе
             username = request.user.username
             return redirect('posts:posts_author', username=username)
         # выводим ошибки формы, если данные  не прошли валидацию

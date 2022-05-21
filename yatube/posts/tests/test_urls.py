@@ -152,14 +152,15 @@ class TaskURLTests(TestCase):
                 response = self.quest_client.get(url)
                 self.assertEqual(response.status_code, status)
 
-    def test_test_redirect_from_edit_page_no_author(self):
+    def test_test_redirect_from_edit_page_no_author_on_page_with_group(self):
         """
         Тестируем доступ к странице редактирования поста.
         Проверяем РЕДИРЕКТ и СТАТУС ответа на странице
         редиректа
         """
         redirect_url = reverse(
-            'posts:post_detail_whithout_group', kwargs={
+            'posts:post_detail', kwargs={
+                'slug': self.group_for_test.slug,
                 'post_id': self.post_two.pk})
         edit_url = reverse('posts:post_edit',
                            kwargs={'post_id': self.post_two.pk})
@@ -167,6 +168,27 @@ class TaskURLTests(TestCase):
         # на страницу редактирования поста - ожидаем редирект
         response = (
             self.authorized_client_auth_user.get(edit_url))
+        # ловим ошибку, если редирект произошёл на другую страницу
+        self.assertRedirects(response, redirect_url)
+        # получаем код ответа редиректа
+        self.assertEqual(response.status_code, STATUS_302)
+
+    def test_test_redirect_from_edit_page_on_page_without_group(self):
+        """
+        Тестируем доступ к странице редактирования поста.
+        Проверяем РЕДИРЕКТ и СТАТУС ответа на странице
+        редиректа БЕЗ ГРУППЫ (slug)
+        """
+        redirect_url = reverse(
+            'posts:post_detail_whithout_group', kwargs={
+                'post_id': self.post_one.pk})
+        edit_url = reverse('posts:post_edit',
+                           kwargs={'post_id': self.post_one.pk})
+        # запрос от авторизованного пользователя, но не автора поста
+        # (user_author автор post_two)
+        # на страницу редактирования поста - ожидаем редирект
+        response = (
+            self.authorized_client_auth_user_author.get(edit_url))
         # ловим ошибку, если редирект произошёл на другую страницу
         self.assertRedirects(response, redirect_url)
         # получаем код ответа редиректа
