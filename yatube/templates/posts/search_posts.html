@@ -13,10 +13,10 @@
 <div class="container">
   <div class="">
     <div class="card-body">
-      <form class="p-2 card" action="/search/">
+      <form class="p-2 card" action="/search/" method='get'>
         <div class="input-group">
           <input name="search" class="form-control" type="search" 
-            placeholder="Поиск" {% if search_key %}value="{{ search_key }}"{% endif %}>
+            placeholder="Поиск" {% if search %}value="{{ search }}"{% endif %}>
           <div class="input-group-append">  
             <button class="btn btn-secondary" type="submit">Найти</button>
           </div> 

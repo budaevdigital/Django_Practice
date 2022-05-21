@@ -4,12 +4,12 @@
 		<ul class="pagination">     
 		{% if page_obj.has_previous %}       
 			<li class="page-item">
-				<a class="page-link" href="?page=1">
+				<a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
           Первая
         </a>
 			</li>       
 			<li class="page-item">         
-				<a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+				<a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
           Предыдущая        
 				</a>       
 			</li>     
@@ -21,18 +21,18 @@
 				</li>         
 			{% else %}           
 				<li class="page-item">             
-					<a class="page-link" href="?page={{ i }}">{{ i }}</a>           
+					<a class="page-link" href="?page={{ i }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ i }}</a>           
 				</li>         
 			{% endif %}     
 		{% endfor %}     
 		{% if page_obj.has_next %}       
 			<li class="page-item">         
-				<a class="page-link" href="?page={{ page_obj.next_page_number }}">
+				<a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
 				Следующая         
 				</a>       
 			</li>       
 			<li class="page-item">         
-				<a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+				<a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
 				Последняя         
 				</a>       
 			</li>     

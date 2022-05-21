@@ -55,23 +55,22 @@ def posts_author(request, username):
 
 
 def search(request):
-    search_keyword = request.GET.get('search', None)
     template = 'posts/search_posts.html'
-
-    if search_keyword:
-        search_post = Post.objects.filter(
-            text__contains=search_keyword).select_related(
-                'author').select_related('group')
-        paginator = Paginator(search_post, 9)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
-    else:
-        page_obj = None
-
+    if request.method == 'GET':
+        search_keyword = request.GET.get('search', None)
+        if search_keyword:
+            search_post = Post.objects.filter(
+                text__contains=search_keyword).select_related(
+                    'author').select_related('group')
+            paginator = Paginator(search_post, 9)
+            page_number = request.GET.get('page', 1)
+            page_obj = paginator.get_page(page_number)
+        else:
+            page_obj = {}
     context = {
         'title': 'Поиск статей',
         'page_obj': page_obj,
-        'search_key': search_keyword
+        'search': search_keyword
     }
     return render(request, template, context)
 
