@@ -1,3 +1,4 @@
+# posts/forms.py
 from django import forms
 from .models import Post, Group
 from .validators import validate_not_empty_or_less
