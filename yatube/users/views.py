@@ -12,5 +12,5 @@ class SignUp(CreateView):
     form_class = CreationForm
     # В случае успешной регистрации, перенаправляем
     # по 'namespace:name'
-    success_url = reverse_lazy('post:index')
+    success_url = reverse_lazy('posts:index')
     template_name = 'users/signup.html'
