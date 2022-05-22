@@ -6,10 +6,14 @@ from django import forms
 import random
 from posts.models import Post, Group
 
-POSTS_FOR_RANDOM = 29
+# Общее количество постов
+POSTS_FOR_RANDOM = 27
+# количество постов на странице
 COUNT_PAGINATOR_ON_PAGE = 9
-COUNT_FIRST_POST_TEST = 0  # не менять количество
-COUNT_SECOND_POST_TEST = 0  # не менять количество
+
+# FIRST и SECOND не менять!
+COUNT_FIRST_POST_TEST = 0
+COUNT_SECOND_POST_TEST = 0
 
 User = get_user_model()
 
@@ -165,9 +169,6 @@ class PaginatorViewsTest(TestCase):
                 posts_on_last_page = POSTS_FOR_RANDOM - (
                     COUNT_PAGINATOR_ON_PAGE*all_pages)
 
-        print(f'{posts_on_last_page}')
-        print(f'{all_pages}')
-        print(reverse('posts:index') + f'?page={all_pages}')
         # Проверка: на третьей странице должно быть 4 поста.
         response = self.authorized_client_auth_user.get(
             reverse('posts:index') + f'?page={all_pages + 1}')
@@ -253,7 +254,7 @@ class PaginatorViewsTest(TestCase):
         self.assertEqual(len(
             response.context['page_obj']), count_post)
 
-    def test_last_page_contains_two_records_filter_author_post(self):
+    def test_last_page_contains_records_filter_author_post(self):
         """
         Тестирует (паджинатор) количество постов на последней странице
         с учетом пагинации и отфильтрованных по пользователю.
@@ -272,10 +273,12 @@ class PaginatorViewsTest(TestCase):
             all_pages = int(COUNT_SECOND_POST_TEST/COUNT_PAGINATOR_ON_PAGE)
             posts_on_last_page = COUNT_SECOND_POST_TEST - (
                 COUNT_PAGINATOR_ON_PAGE*all_pages)
+        if posts_on_last_page == 0:
+            posts_on_last_page = 9
         response = self.authorized_client_auth_user.get(
             reverse('posts:posts_author', kwargs={
                 'username': self.auth_user_second.username
-            }) + f'?page={all_pages}')
+            }) + f'?page={all_pages+1}')
         # Всего постов этого автора 11. На первой странице - 9 постов
         # ,а на второй - будет 2 поста
         self.assertEqual(len(
@@ -334,28 +337,31 @@ class PaginatorViewsTest(TestCase):
             all_pages = int(COUNT_SECOND_POST_TEST/COUNT_PAGINATOR_ON_PAGE)
             posts_on_last_page = COUNT_SECOND_POST_TEST - (
                 COUNT_PAGINATOR_ON_PAGE*all_pages)
+        if posts_on_last_page == 0:
+            posts_on_last_page = 9
         # slug='test-slug-second'
         response = self.quest_client.get(
             reverse('posts:group_list', kwargs={
                 'slug': self.group_for_test_second.slug}
-                    ) + f'?page={all_pages}')
+                    ) + f'?page={all_pages+1}')
         self.assertEqual(len(response.context['page_obj']),
                          posts_on_last_page)
 
     def test_page_with_detai_post_context(self):
-        # TODO - доделать тест
-        # count_post = 3
-        # response = self.quest_client.get(
-        #     reverse('posts:post_detail', kwargs={
-        #         'slug': self.group_for_test_second.slug,
-        #         'post_id': 3}))
-        # name_post = 'post_' + str(POSTS_FOR_RANDOM)
-        # text_post = (name_post + ' ') * 2
-        # detail_text_post = response.context['page_obj'][0]
-        # detail_author_post = response.context['page_obj'][1].author
-        # detail_group_post = response.context['page_obj'][1].group
-        # self.assertEqual(detail_text_post.text, text_post)
-        # self.assertEqual(response.context['page_obj'][count_post].author,
-        #                  self.auth_user_second)
-        # self.assertEqual(response.context['page_obj'][count_post].group,
-        #                  self.group_for_test_second)
+        """
+        Тест данных, которые выводит страница при чтении конкретного поста
+        """
+        # Сортировка постов на странице выполнена по дате (от новых к старым)
+        # а name_post в тесте выполнен в обратном порядке
+        count_post = POSTS_FOR_RANDOM
+        post_text = 1
+        response = self.quest_client.get(
+            reverse('posts:post_detail', kwargs={
+                'slug': self.group_for_test_second.slug,
+                'post_id': count_post}))
+        name_post = 'post_' + str(post_text)
+        text_post = (name_post + ' ') * 2
+        detail_post = response.context['page_obj'][0]
+        self.assertEqual(detail_post.text, text_post)
+        self.assertEqual(detail_post.author, self.auth_user_second)
+        self.assertEqual(detail_post.group, self.group_for_test_second)
