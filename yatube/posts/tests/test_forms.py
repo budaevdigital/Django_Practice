@@ -33,7 +33,7 @@ class TaskCorrectCreateEditPost(TestCase):
         cls.form = PostForm()
         # незарегистрированный пользователь
         cls.quest_client = Client()
-        # Пользователь, который есть в БД и который авторизовался 
+        # Пользователь, который есть в БД и который авторизовался
         cls.auth_client = Client()
         cls.auth_client.force_login(cls.auth_user)
 
