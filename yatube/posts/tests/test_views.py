@@ -1,9 +1,12 @@
 # posts/tests/test_views.py
-from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
-from django.urls import reverse
-from django import forms
+import shutil
+import tempfile
+from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 import random
+from django.contrib.auth import get_user_model
+from django.test import Client, TestCase, override_settings
+from django.urls import reverse
 from posts.models import Post, Group
 
 # Общее количество постов
@@ -15,9 +18,21 @@ COUNT_PAGINATOR_ON_PAGE = 9
 COUNT_FIRST_POST_TEST = 0
 COUNT_SECOND_POST_TEST = 0
 
+# Создаем временную папку для медиа-файлов
+# на момент теста медиа папка будет переопределена
+TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
+SMALL_GIF = (
+    b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04'
+    b'\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02'
+    b'\x02\x4c\x01\x00\x3b'
+)
+
 User = get_user_model()
 
 
+# Для сохранения media-файлов в тестах будет использоваться
+# временная папка TEMP_MEDIA_ROOT, а потом мы ее удалим
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class TaskObjectPagesTests(TestCase):
     """
     Тестируем выводимые объекты на страницах
@@ -34,24 +49,26 @@ class TaskObjectPagesTests(TestCase):
             description='Тестовый текст',
             slug='test-slug'
         )
-        cls.group_for_test_second = Group.objects.create(
-            title='Тестовый заголовок Второй',
-            description='Тестовый текст Второй',
-            slug='test-slug-second'
+        uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=SMALL_GIF,
+            content_type='image/gif'
         )
         # создадим пост в модели Post для проведения тестов
         # 1 пост-без Group(slug-рубрики)
         cls.post_one = Post.objects.create(
             text=('Подумайте перед составлением '
                   'словаря с шаблонами и адресамиии.'),
-            author=cls.auth_user
+            author=cls.auth_user,
+            image=uploaded
         )
         # 2 пост-с Group(slug-рубрикой)
         cls.post_two = Post.objects.create(
             text=('Подумайте после составлением'
                   ' словаря. Это здорово!'),
             author=cls.auth_user,
-            group=cls.group_for_test
+            group=cls.group_for_test,
+            image=uploaded
         )
         # создаём 2 клиентов
         # первый-неавторизованный. Для проверки доступа там,
@@ -62,9 +79,18 @@ class TaskObjectPagesTests(TestCase):
         # Авторизовываем клиентов auth_user
         cls.authorized_client_auth_user.force_login(cls.auth_user)
 
-    def test_pages_show_correct_context(self):
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        # Модуль shutil - библиотека Python с удобными инструментами
+        # для управления файлами и директориями:
+        # создание, удаление, копирование, перемещение, изменение папок
+        # Метод shutil.rmtree удаляет директорию и всё её содержимое
+        shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)       
+
+    def test_index_page_show_correct_context(self):
         """
-        Тестирование правильности отображаемого контента
+        Тестирование правильности отображаемого контента на главной странице
         """
         response = self.authorized_client_auth_user.get(reverse('posts:index'))
         page_objects = response.context['page_obj'][0]
@@ -74,7 +100,74 @@ class TaskObjectPagesTests(TestCase):
             page_objects.text: self.post_two.text,
             page_objects.group: self.post_two.group,
             page_objects.author: self.post_two.author,
-            page_objects.pub_date: self.post_two.pub_date
+            page_objects.pub_date: self.post_two.pub_date,
+            page_objects.image: self.post_two.image
+        }
+        # сравниваем со значениями 2-го поста, т.к. он создан последним в тесте
+        # во view-функции у нас сортировка по убыванию по дате
+        for page_obj, correct_data in test_page_objects.items():
+            with self.subTest(page_obj=page_obj):
+                self.assertEqual(page_obj, correct_data)
+
+    def test_page_with_detail_post_context(self):
+        """
+        Тест данных, которые выводит страница при чтении конкретного поста
+        """
+        # Сортировка постов на странице выполнена по дате (от новых к старым)
+        post_id = self.post_two.pk
+        response = self.quest_client.get(
+            reverse('posts:post_detail', kwargs={
+                'slug': self.group_for_test.slug,
+                'post_id': post_id}))
+        detail_post = response.context['page_obj'][0]
+        self.assertEqual(detail_post.text, self.post_two.text)
+        self.assertEqual(detail_post.author, self.auth_user)
+        self.assertEqual(detail_post.group, self.group_for_test)
+        self.assertEqual(detail_post.image, self.post_two.image)
+
+    def test_group_page_show_correct_context(self):
+        """
+        Тестирование правильности отображаемого контента на странице рубрики
+        """
+        response = self.authorized_client_auth_user.get(reverse(
+            'posts:group_list',
+            kwargs={
+                'slug': self.group_for_test.slug})
+        )
+        page_objects = response.context['page_obj'][0]
+        # создадим словарь с ключами, которые в ответ на запрос к странице
+        # в значениях ключа - правильное тестируемое значение
+        test_page_objects = {
+            page_objects.text: self.post_two.text,
+            page_objects.group: self.post_two.group,
+            page_objects.author: self.post_two.author,
+            page_objects.pub_date: self.post_two.pub_date,
+            page_objects.image: self.post_two.image
+        }
+        # сравниваем со значениями 2-го поста, т.к. он создан последним в тесте
+        # во view-функции у нас сортировка по убыванию по дате
+        for page_obj, correct_data in test_page_objects.items():
+            with self.subTest(page_obj=page_obj):
+                self.assertEqual(page_obj, correct_data)
+
+    def test_author_page_show_correct_context(self):
+        """
+        Тестирование правильности отображаемого контента на странице пользователя
+        """
+        response = self.authorized_client_auth_user.get(reverse(
+            'posts:posts_author',
+            kwargs={
+                'username': self.auth_user.username})
+        )
+        page_objects = response.context['page_obj'][0]
+        # создадим словарь с ключами, которые в ответ на запрос к странице
+        # в значениях ключа - правильное тестируемое значение
+        test_page_objects = {
+            page_objects.text: self.post_two.text,
+            page_objects.group: self.post_two.group,
+            page_objects.author: self.post_two.author,
+            page_objects.pub_date: self.post_two.pub_date,
+            page_objects.image: self.post_two.image
         }
         # сравниваем со значениями 2-го поста, т.к. он создан последним в тесте
         # во view-функции у нас сортировка по убыванию по дате
@@ -83,7 +176,7 @@ class TaskObjectPagesTests(TestCase):
                 self.assertEqual(page_obj, correct_data)
 
 
-class PaginatorViewsTest(TestCase):
+class PaginatorObjectsViewsTest(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -173,48 +266,6 @@ class PaginatorViewsTest(TestCase):
         response = self.authorized_client_auth_user.get(
             reverse('posts:index') + f'?page={all_pages + 1}')
         self.assertEqual(len(response.context['page_obj']), posts_on_last_page)
-
-    def test_correct_form_for_create_post(self):
-        """
-        Тестрируем выводимые поля в форме при создании поста
-        """
-        response = self.authorized_client_auth_user.get(
-            reverse('posts:post_create'))
-        forms_field = {
-            'group': forms.fields.ChoiceField,
-            # При создании формы поля модели типа TextField
-            # преобразуются в CharField с виджетом forms.Textarea
-            'text': forms.fields.CharField
-        }
-        for value, excepted in forms_field.items():
-            with self.subTest(value=value):
-                form_field = response.context.get('form').fields.get(value)
-                self.assertIsInstance(form_field, excepted)
-
-    def test_correct_form_for_edit_post(self):
-        """
-        Тестрируем выводимые поля в форме при редактировании поста
-        """
-        # В зависимости от значения (POSTS_FOR_RANDOM) четн. / нечетн.
-        # присваиваем ID для post_id, чтобы автором поста был auth_user
-        if POSTS_FOR_RANDOM % 2 == 0:
-            post_id = 3
-        else:
-            post_id = 4
-        response = self.authorized_client_auth_user.get(
-            reverse('posts:post_edit', kwargs={
-                # Количество постов 22. Нужен четный ID (РК) поста
-                # auth_user в цикле, явяляется автором именно четных
-                # с помощью andom.randrange выбираем рандомно нечетное число
-                'post_id': post_id}))
-        forms_field = {
-            'group': forms.fields.ChoiceField,
-            'text': forms.fields.CharField
-        }
-        for value, excepted in forms_field.items():
-            with self.subTest(value=value):
-                form_field = response.context.get('form').fields.get(value)
-                self.assertIsInstance(form_field, excepted)
 
     def test_posts_contains_filter_author(self):
         """
@@ -313,7 +364,7 @@ class PaginatorViewsTest(TestCase):
             count_posts_on_page = COUNT_SECOND_POST_TEST
         else:
             count_posts_on_page = COUNT_PAGINATOR_ON_PAGE
-        # slug='test-slug-second'
+        # slug=test-slug-second - url второй'
         response = self.quest_client.get(
             reverse('posts:group_list', kwargs={
                 'slug': self.group_for_test_second.slug}))
@@ -346,22 +397,3 @@ class PaginatorViewsTest(TestCase):
                     ) + f'?page={all_pages+1}')
         self.assertEqual(len(response.context['page_obj']),
                          posts_on_last_page)
-
-    def test_page_with_detai_post_context(self):
-        """
-        Тест данных, которые выводит страница при чтении конкретного поста
-        """
-        # Сортировка постов на странице выполнена по дате (от новых к старым)
-        # а name_post в тесте выполнен в обратном порядке
-        count_post = POSTS_FOR_RANDOM
-        post_text = 1
-        response = self.quest_client.get(
-            reverse('posts:post_detail', kwargs={
-                'slug': self.group_for_test_second.slug,
-                'post_id': count_post}))
-        name_post = 'post_' + str(post_text)
-        text_post = (name_post + ' ') * 2
-        detail_post = response.context['page_obj'][0]
-        self.assertEqual(detail_post.text, text_post)
-        self.assertEqual(detail_post.author, self.auth_user_second)
-        self.assertEqual(detail_post.group, self.group_for_test_second)
