@@ -39,5 +39,5 @@ handler403 = 'core.views.permission_denied'
 # нужно переопределить это поведение Django в режиме DEBUG=True
 if settings.DEBUG:
     urlpatterns += static(
-        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
-    )
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT)

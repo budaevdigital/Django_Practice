@@ -11,6 +11,7 @@
 {% url 'users:logged_out' as url_logged_out %}
 {# url создания статей #}
 {% url 'posts:post_create' as url_post_create %}
+{% url 'posts:post_edit' as url_post_edit %}
 
 <div class="container py-5"> 
 	<div class="row justify-content-center">   
@@ -73,7 +74,9 @@
                 </div>                  
               {% endfor %}       
             {% endif %}            
+            {# enctype=... чтобы форма понимала, что нужно работать с файлами #}
             <form method="post"
+                enctype="multipart/form-data"
               {% if action_url %}      
                 action="{% url action_url %}"             
               {% endif %}>         

@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{# Для отображения картинок #}
+{% load thumbnail %}
 {% if page_obj %}
 {# Для вывода значения словаря, обращаемся к нему по ключу ({{ var_dict.key }}) #}
 {# Первые 30 букв поста #}
@@ -12,31 +14,39 @@
 <section>
   <div class="container">
     <div class="px-4 pt-5 my-5 text-center">
-      <div class="p-4 p-md-5 mb-4 text-white rounded bg-dark">
-          {% for post in page_obj %}
+      {% for post in page_obj %}
+      <div class="p-4 p-md-5 mb-4 text-white rounded bg-dark"
+        {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+          style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.6)), url('{{ im.url }}');
+            background-size: cover;">
+        {% endthumbnail %}
+        {% if not post.image %}
+          >
+        {% endif %}
         <h1 class="display-4 fw-bold">
           {{ post.text|title|truncatewords:14 }}
         </h1>
         <div class="px-4 pt-5">
-          <p class="blog-post-meta text-muted">
-          автор: <a class="text-white text-muted" href="{% url 'posts:posts_author' username=post.author%}"<b>{{ post.author.get_full_name }}</b></a> | 
+          <p class="blog-post-meta">
+          автор: <a class="text-white" href="{% url 'posts:posts_author' username=post.author%}"<b>{{ post.author.get_full_name }}</b></a> | 
           дата публикации: <b>{{ post.pub_date|date:"d M Y" }}</b>
           {% if post.group %}
-             | рубрика: <a class="text-white text-muted" href="{% url 'posts:group_list' slug=post.group.slug %}"<b>{{ post.group.title }}</b></a>
+             | рубрика: <a class="text-white" href="{% url 'posts:group_list' slug=post.group.slug %}"<b>{{ post.group.title }}</b></a>
           {% endif %}
           </p>
         </div>
         {% if is_author %}
           {% if user.is_authenticated %}
           <div class="px-4 pt-5">
-            <p class="blog-post-meta text-muted">
-              <a class="text-white text-muted" href="{% url 'posts:post_edit' post_id=post.pk %}"<b>Редактировать запись</b></a>
+            <p class="blog-post-meta">
+              <a class="text-white" href="{% url 'posts:post_edit' post_id=post.pk %}"<b>Редактировать запись</b></a>
             </p>
           </div>
           {% endif %}
         {% endif %}
-      {% endfor %}
+      
     </div>
+    {% endfor %} 
   </div>
 </section> 
 {% endblock %}

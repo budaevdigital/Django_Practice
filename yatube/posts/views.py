@@ -129,7 +129,11 @@ def post_edit(request, post_id):
     if request.user.pk == post.author.pk:
         # Если метод POST, то передаем данные формы в класс PostForm (forms.py)
         if request.method == 'POST':
-            form = PostForm(request.POST, instance=post)
+            form = PostForm(
+                request.POST or None,
+                files=request.FILES or None,
+                instance=post
+            )
             if form.is_valid():
                 # формируем запись для отправки в БД, но не отправляем
                 temp = form.save(commit=False)
@@ -173,7 +177,9 @@ def post_create(request):
     create_title = 'Создание записи'
     # Если метод POST, то передаем данные формы в класс PostForm (forms.py)
     if request.method == 'POST':
-        form = PostForm(request.POST)
+        form = PostForm(
+                request.POST or None,
+                files=request.FILES or None)
 
         if form.is_valid():
             # формируем запись для отправки в БД, но не отправляем
