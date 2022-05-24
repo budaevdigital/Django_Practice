@@ -60,9 +60,11 @@
                 {% if not forloop.last %}
                   <hr>             
                 {% endif %} 
+                {% include 'includes/comments.html' %}
             {% endfor %}
+            
           </div>
       </div>
-    </section>  
+    </section>
   {% endblock %}
 {% endif %}  

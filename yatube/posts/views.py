@@ -1,8 +1,9 @@
+# posts/views.py
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Post, Group, User
-from .forms import PostForm
+from .models import Post, Group, Comment, User
+from .forms import PostForm, CommentForm
 
 
 def index(request):
@@ -86,11 +87,15 @@ def post_detail(request, slug, post_id):
     # условия WHERE group_id = {group_id}
     if post_id and slug:
         posts = Post.objects.filter(group=group).filter(pk=post_id)
+        comments = Comment.objects.filter(post=post_id)
+        form = CommentForm(request.POST or None)
         if request.user.pk == posts[0].author.pk:
             is_author = True
         context = {
             'page_obj': posts,
-            'is_author': is_author
+            'is_author': is_author,
+            'comments': comments,
+            'form': form
         }
     else:
         context = None
@@ -100,18 +105,43 @@ def post_detail(request, slug, post_id):
 def post_detail_whithout_group(request, post_id):
     is_author = False
     template = 'posts/post_detail.html'
-    # post = get_object_or_404(Post, pk=post_id)
     post = Post.objects.filter(pk=post_id)
+    comments = Comment.objects.filter(post=post_id)
+    form = CommentForm(request.POST or None)
     if post_id:
         if request.user.pk == post[0].author.pk:
             is_author = True
         context = {
             'page_obj': post,
-            'is_author': is_author
+            'is_author': is_author,
+            'comments': comments,
+            'form': form
         }
     else:
         context = None
     return render(request, template, context)
+
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    form = CommentForm(request.POST or None)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.author = request.user
+        comment.post = post
+        comment.save()
+    try:
+        slug = post.group.slug
+        return redirect('posts:post_detail',
+                        slug=slug,
+                        post_id=post_id)
+    # если "AttributeError: 'NoneType' object has no attribute 'slug'"
+    # у поста нету slug (group), то отлавливаем NoneType
+    # (ошибку AttributeError) и делаем редирект на страницу без slug
+    except AttributeError:
+        return redirect('posts:post_detail_whithout_group',
+                        post_id=post_id)
 
 
 @login_required()

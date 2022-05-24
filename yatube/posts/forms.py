@@ -1,7 +1,7 @@
 # posts/forms.py
 from django import forms
-from .models import Post, Group
-from .validators import validate_not_empty_or_less
+from .models import Post, Group, Comment
+from .validators import validate_not_empty_or_less, validate_for_comment
 
 
 class PostForm(forms.ModelForm):
@@ -18,3 +18,14 @@ class PostForm(forms.ModelForm):
     class Meta():
         model = Post
         fields = ('group', 'text', 'image')
+
+
+class CommentForm(forms.ModelForm):
+    text = forms.CharField(widget=forms.Textarea,
+                           required=True,
+                           label='Комментировать',
+                           validators=[validate_for_comment])
+
+    class Meta():
+        model = Comment
+        fields = ('text',)

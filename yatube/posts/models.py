@@ -61,3 +61,27 @@ class Post(models.Model):
     # выведем 15 символов текста
     def __str__(self):
         return self.text[:15]
+
+
+class Comment(models.Model):
+    # настраиваем взаимоотношения и удаления, в случае удаления
+    # объекта взаимосвязи
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Комментируемый пост'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор комментария'
+    )
+    text = models.TextField(max_length=500)
+    created = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата комментария')
+
+    def __str__(self):
+        return self.text

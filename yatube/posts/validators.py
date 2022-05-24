@@ -27,3 +27,17 @@ def validate_not_empty_or_less(value):
             f'но может стоит написать больше {len(value)} символов?',
             params={'value': value},
         )
+
+
+def validate_for_comment(value):
+    if value == '' or value is None:
+        raise forms.ValidationError(
+            'Комментарий не может быть пустый!',
+            params={'value': value},
+        )
+    if len(value) <= 5:
+        raise forms.ValidationError(
+            f'Краткость, это прекрасно,'
+            f'но может стоит написать больше {len(value)} символов?',
+            params={'value': value},
+        )
