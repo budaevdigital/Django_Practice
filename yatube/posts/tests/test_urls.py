@@ -210,9 +210,13 @@ class TaskURLTests(TestCase):
         """
         Тестрируем страницу, которая должна вернуть СТАТУС 404
         """
+        # Проверим, используется ли кастомная страница 404
+        template = 'core/404.html'
+        # Запрос на несузествующую страницу
         nonexistent_url = '/non_404_nonepages/'
         response = self.quest_client.get(nonexistent_url)
         self.assertEqual(response.status_code, STATUS_404)
+        self.assertTemplateUsed(response, template)
 
     def test_redirect_anonymous_to_login_page(self):
         """
