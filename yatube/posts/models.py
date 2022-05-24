@@ -39,6 +39,22 @@ class Post(models.Model):
         verbose_name='Группа',
         help_text='Выберите группу'
     )
+    image = models.ImageField(
+        verbose_name='Картинка',
+        help_text='Вставьте картинку размером до 5 Мб',
+        # Аргумент upload_to указывает директорию,
+        # в которую будут загружаться пользовательские файлы.
+        upload_to='posts/',
+        # Поле для картинки (необязательное)
+        blank=True
+    )
+
+    class Meta:
+        # переопределяем параметры фильтра и отображение имени
+        # класса Post в ед. и мн. числе
+        ordering = ('-pub_date'),
+        verbose_name = 'Пост',
+        verbose_name_plural = 'Посты'
 
     # для нормального отображения в списке
     # без этого метода, будет "Post object"

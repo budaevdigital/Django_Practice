@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', include('posts.urls', namespace='posts')),
@@ -32,3 +34,10 @@ urlpatterns = [
 handler404 = 'core.views.page_not_found'
 handler500 = 'core.views.server_error'
 handler403 = 'core.views.permission_denied'
+
+# в режиме разработчика Django не раздаёт картинки, поэтому
+# нужно переопределить это поведение Django в режиме DEBUG=True
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+    )
