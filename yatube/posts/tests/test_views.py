@@ -7,7 +7,7 @@ import random
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from posts.models import Post, Group
+from posts.models import Post, Group, Comment
 
 # Общее количество постов
 POSTS_FOR_RANDOM = 27
@@ -152,7 +152,8 @@ class TaskObjectPagesTests(TestCase):
 
     def test_author_page_show_correct_context(self):
         """
-        Тестирование правильности отображаемого контента на странице пользователя
+        Тестирование правильности отображаемого контента
+        на странице пользователя
         """
         response = self.authorized_client_auth_user.get(reverse(
             'posts:posts_author',
@@ -397,3 +398,77 @@ class PaginatorObjectsViewsTest(TestCase):
                     ) + f'?page={all_pages+1}')
         self.assertEqual(len(response.context['page_obj']),
                          posts_on_last_page)
+
+
+class CommentsViewsTest(TestCase):
+    """
+    Проверяем, что:
+    ---------------
+    - Комментировать посты может только авторизованный пользователь;
+    - После успешной отправки комментарий появляется на странице поста.
+    """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=SMALL_GIF,
+            content_type='image/gif'
+        )
+        cls.user = User.objects.create(
+            username='test-user'
+        )
+        cls.group = Group.objects.create(
+            title='Тестовый заголовок',
+            description='Тестовый текст',
+            slug='test-slug'
+        )
+        cls.post_one = Post.objects.create(
+            text=('В базе данных проекта Yatube уже хранится информация'
+                  'об авторах и их постах. Дадим пользователям '
+                  'возможность комментировать записи друг друга.'),
+            author=cls.user,
+            group=cls.group,
+            image=uploaded
+        )
+        cls.quest_user = Client()
+        cls.auth_user = Client()
+        cls.auth_user.force_login(cls.user)
+
+    def test_create_comment_only_auth_user(self):
+        """
+        Тестирование комментирования поста - только авторизованные
+        """
+        comments_count_first = Comment.objects.count()
+        text_comment = {
+            'text': 'Первый комментарий, к этому чудесному тесту',
+            'post': self.post_one,
+            'author': self.user}
+        response = self.auth_user.post(reverse(
+            'posts:add_comment',
+            kwargs={'post_id': self.post_one.pk}),
+            data=text_comment,
+            follow=True)
+        comments_count_second = Comment.objects.count()
+        self.assertTrue(comments_count_second, (comments_count_first+1))
+        self.assertRedirects(response, reverse(
+            'posts:post_detail',
+            kwargs={
+                'slug': self.group.slug,
+                'post_id': self.post_one.pk
+            }))
+
+    def test_comment_on_page(self):
+        self.comment_on_page = Comment.objects.create(
+            text='Первый комментарий, к этому чудесному тесту',
+            post=self.post_one,
+            author=self.user
+        )
+        response = self.quest_user.get(reverse(
+            'posts:post_detail',
+            kwargs={
+                'slug': self.group.slug,
+                'post_id': self.post_one.pk
+            }))
+        page_objects = response.context['page_obj'][0]
+        self.assertTrue(page_objects.comments, self.comment_on_page.text)
