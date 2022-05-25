@@ -70,14 +70,16 @@ class TaskObjectPagesTests(TestCase):
             group=cls.group_for_test,
             image=uploaded
         )
+
+    def setUp(self):
         # создаём 2 клиентов
         # первый-неавторизованный. Для проверки доступа там,
         # где требуется авторизация
-        cls.quest_client = Client()
+        self.quest_client = Client()
         # второй-просто авторизованный клиент
-        cls.authorized_client_auth_user = Client()
+        self.authorized_client_auth_user = Client()
         # Авторизовываем клиентов auth_user
-        cls.authorized_client_auth_user.force_login(cls.auth_user)
+        self.authorized_client_auth_user.force_login(self.auth_user)
 
     @classmethod
     def tearDownClass(cls):
@@ -176,6 +178,26 @@ class TaskObjectPagesTests(TestCase):
             with self.subTest(page_obj=page_obj):
                 self.assertEqual(page_obj, correct_data)
 
+    def test_cach_on_index_page(self):
+        """
+        Проверяем работает ли кеширование на главной странице
+        """
+        self.post_for_cach_test = Post.objects.create(
+            text=('1111Подумайте перед задолго до pсоставлением '
+                  'словаря с шаблонами и адресамиии.'),
+            author=self.auth_user,
+            group=self.group_for_test,
+        )
+        post_created = Post.objects.filter(id=self.post_for_cach_test.pk)
+        # делаем запрос к странице до удаления поста с БД
+        response_before = self.quest_client.get(reverse('posts:index'))
+        Post.objects.filter(id=self.post_for_cach_test.pk).delete()
+        post_empty = Post.objects.filter(id=self.post_for_cach_test.pk)
+        # делаем запрос к странице уже после удаления поста
+        response_after = self.quest_client.get(reverse('posts:index'))
+        self.assertTrue(response_before.content, response_after.content)
+        self.assertFalse(post_created, post_empty)
+
 
 class PaginatorObjectsViewsTest(TestCase):
     @classmethod
@@ -227,7 +249,7 @@ class PaginatorObjectsViewsTest(TestCase):
         # Авторизовываем клиентов auth_user
         cls.authorized_client_auth_user.force_login(cls.auth_user)
 
-    def test_first_page_contains_nine_records(self):
+    def test_index_page_contains_nine_records(self):
         """
         Тестирует (паджинатор) количество постов на странице с учетом пагинации
         """

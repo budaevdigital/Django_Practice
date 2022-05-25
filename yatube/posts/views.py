@@ -2,10 +2,14 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import cache_page
 from .models import Post, Group, Comment, User
 from .forms import PostForm, CommentForm
 
 
+# Кешируем страницу раз в 120 секунд
+# При прогоне тестов, желательно отключить
+@cache_page(60 * 2)
 def index(request):
     template = 'posts/group_posts.html'
     posts = Post.objects.order_by('-pub_date')
