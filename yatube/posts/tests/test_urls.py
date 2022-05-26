@@ -75,7 +75,7 @@ class TaskURLTests(TestCase):
         # Шаблоны по адресам
         templates_url_names = {
             # главная / доступ-всем
-            reverse('posts:index'): 'posts/group_posts.html',
+            reverse('posts:index'): 'posts/index.html',
             # список постов в рубрике / доступ-всем
             reverse(
                 'posts:group_list',
@@ -83,9 +83,9 @@ class TaskURLTests(TestCase):
                 ): 'posts/group_posts.html',
             # список постов определённого автора / доступ-всем
             reverse(
-                'posts:posts_author',
+                'posts:profile',
                 kwargs={'username': self.auth_user_author.username}
-                ): 'posts/group_posts.html',
+                ): 'posts/profile.html',
             # поиск постов / доступ-всем
             reverse('posts:search_posts'): 'posts/search_posts.html',
             # чтение поста без рубрики / доступ-всем
@@ -128,7 +128,7 @@ class TaskURLTests(TestCase):
                 ): STATUS_200,
             # список постов определённого автора / доступ-всем
             reverse(
-                'posts:posts_author',
+                'posts:profile',
                 kwargs={'username': self.auth_user_author.username}
                 ): STATUS_200,
             # поиск постов / доступ-всем

@@ -96,7 +96,7 @@ class TaskCorrectCreateEditPost(TestCase):
             data=form_data,
             follow=True
         )
-        self.assertRedirects(response, reverse('posts:posts_author', kwargs={
+        self.assertRedirects(response, reverse('posts:profile', kwargs={
             'username': self.auth_user.username
         }))
         # Проверяем, увеличилось ли число постов в БД

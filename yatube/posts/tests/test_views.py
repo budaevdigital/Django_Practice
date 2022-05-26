@@ -158,7 +158,7 @@ class TaskObjectPagesTests(TestCase):
         на странице пользователя
         """
         response = self.authorized_client_auth_user.get(reverse(
-            'posts:posts_author',
+            'posts:profile',
             kwargs={
                 'username': self.auth_user.username})
         )
@@ -301,7 +301,7 @@ class PaginatorObjectsViewsTest(TestCase):
         else:
             count_posts_on_page_for_random = COUNT_PAGINATOR_ON_PAGE - 3
         response = self.authorized_client_auth_user.get(
-            reverse('posts:posts_author', kwargs={
+            reverse('posts:profile', kwargs={
                 'username': self.auth_user_second.username
             }))
         select_post_on_page = response.context['page_obj'][random.randint(
@@ -320,7 +320,7 @@ class PaginatorObjectsViewsTest(TestCase):
         else:
             count_post = COUNT_PAGINATOR_ON_PAGE
         response = self.authorized_client_auth_user.get(
-            reverse('posts:posts_author', kwargs={
+            reverse('posts:profile', kwargs={
                 'username': self.auth_user_second.username
             }))
         # Проверка: количество постов на первой странице равно 9.
@@ -350,7 +350,7 @@ class PaginatorObjectsViewsTest(TestCase):
         if posts_on_last_page == 0:
             posts_on_last_page = 9
         response = self.authorized_client_auth_user.get(
-            reverse('posts:posts_author', kwargs={
+            reverse('posts:profile', kwargs={
                 'username': self.auth_user_second.username
             }) + f'?page={all_pages+1}')
         # Всего постов этого автора 11. На первой странице - 9 постов
@@ -494,3 +494,16 @@ class CommentsViewsTest(TestCase):
             }))
         page_objects = response.context['page_obj'][0]
         self.assertTrue(page_objects.comments, self.comment_on_page.text)
+
+
+class FollowingViewsTest(TestCase):
+    """
+    Проверяем, что:
+    ---------------
+    - Авторизованный пользователь может подписываться на других
+        пользователей и удалять их из подписок.
+    - Новая запись пользователя появляется в ленте тех, кто на него
+        подписан и не появляется в ленте тех, кто не подписан.
+    """
+    @classmethod
+    

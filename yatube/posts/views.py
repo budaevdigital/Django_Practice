@@ -187,7 +187,7 @@ def post_edit(request, post_id):
                 # Передаём имя пользователя в переменную, чтобы передать
                 # при редиректе
                 username = request.user.username
-                return redirect('posts:posts_author', username=username)
+                return redirect('posts:profile', username=username)
             # выводим ошибки формы, если данные  не прошли валидацию
         else:
             # Если метод НЕ POST!
@@ -234,7 +234,7 @@ def post_create(request):
             # Передаём имя пользователя в переменную, чтобы
             # передать при редиректе
             username = request.user.username
-            return redirect('posts:posts_author', username=username)
+            return redirect('posts:profile', username=username)
         # выводим ошибки формы, если данные  не прошли валидацию
         context = {
             'form': form,
