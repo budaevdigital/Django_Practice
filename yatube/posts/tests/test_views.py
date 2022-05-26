@@ -7,7 +7,7 @@ import random
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from posts.models import Post, Group, Comment
+from posts.models import Follow, Post, Group, Comment
 
 # Общее количество постов
 POSTS_FOR_RANDOM = 27
@@ -503,7 +503,107 @@ class FollowingViewsTest(TestCase):
     - Авторизованный пользователь может подписываться на других
         пользователей и удалять их из подписок.
     - Новая запись пользователя появляется в ленте тех, кто на него
-        подписан и не появляется в ленте тех, кто не подписан.
+        подписан.
     """
     @classmethod
-    
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.user_1 = User.objects.create(
+            username='test-user'
+        )
+        cls.user_2 = User.objects.create(
+            username='test-user-2'
+        )
+        cls.user_3 = User.objects.create(
+            username='test-user-3'
+        )
+        cls.group = Group.objects.create(
+            title='Тестовый заголовок',
+            description='Тестовый текст',
+            slug='test-slug'
+        )
+        cls.post_one = Post.objects.create(
+            text=('Yatube уже хранится информация'
+                  'об авторах и их постах. Дадим пользователям '
+                  'возможность комментировать записи друг друга.'),
+            author=cls.user_1,
+            group=cls.group
+        )
+        cls.post_two = Post.objects.create(
+            text=('базе данных проекта Yatube уже хранится информация'
+                  'об авторах и их постах. Дадим пользователям '
+                  'возможность друга.'),
+            author=cls.user_2,
+            group=cls.group
+        )
+        cls.post_three = Post.objects.create(
+            text=('данных проекта хранится информация'
+                  'об авторах и их постах. Дадим пользователям '
+                  'возможность комментировать записи друг друга.'),
+            author=cls.user_3,
+            group=cls.group
+        )
+        cls.auth_user_one = Client()
+        cls.auth_user_one.force_login(cls.user_1)
+        cls.auth_user_two = Client()
+        cls.auth_user_two.force_login(cls.user_2)
+        cls.client_user_three = Client()
+
+    def test_follow_other_author(self):
+        """
+        Тестируем подписку "user_1" на "user_3"
+        """
+        # будет False
+        is_follow_firsttime = Follow.objects.filter(
+            author=self.user_3, user=self.user_1).exists()
+        response = self.auth_user_one.get(
+            reverse('posts:profile_follow',
+                    kwargs={
+                        'username': self.user_3.username,
+                    }))
+        # будет True
+        is_follow_secondtime = Follow.objects.filter(
+            author=self.user_3, user=self.user_1).exists()
+        self.assertRedirects(response, reverse('posts:profile',
+                             kwargs={'username': self.user_3.username, }))
+        self.assertEqual(is_follow_firsttime, False)
+        self.assertEqual(is_follow_secondtime, True)
+
+    def test_unfollow_other_author(self):
+        """
+        Тестируем удаление из подписок ("user_1" удаляет подписку на "user_3")
+        """
+        pass
+        self.start_following = Follow.objects.create(
+            author=self.user_3, user=self.user_1)
+        # "is_follow_firsttime" должна быть True
+        is_follow_firsttime = Follow.objects.filter(
+            author=self.user_3, user=self.user_1).exists()
+        response = self.auth_user_one.get(
+            reverse('posts:profile_unfollow',
+                    kwargs={
+                        'username': self.user_3.username,
+                    }))
+        # будет False
+        is_follow_secondtime = Follow.objects.filter(
+            author=self.user_3, user=self.user_1).exists()
+        self.assertRedirects(response, reverse('posts:profile',
+                             kwargs={'username': self.user_3.username, }))
+        self.assertEqual(is_follow_firsttime, True)
+        self.assertEqual(is_follow_secondtime, False)
+
+    def test_posts_on_follow_user(self):
+        """
+        Тестируем видимость постов в ленте подписчика (у "user_1" в ленте
+        должны появиться посты "user_3")
+        """
+        self.start_following = Follow.objects.create(
+            author=self.user_3, user=self.user_1)
+        response = self.auth_user_one.get(
+            reverse('posts:follow_index'))
+        # берём текст первого поста, автора, на которого подписались
+        text_post_user_3 = response.context['page_obj'][0].text
+        author_post_user_3 = response.context['page_obj'][0].author
+        # и сравниваем с текстом автора "user_3"
+        self.assertEqual(text_post_user_3, self.post_three.text)
+        self.assertEqual(author_post_user_3, self.user_3)

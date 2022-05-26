@@ -10,7 +10,7 @@ urlpatterns = [
     path('group/<slug:slug>/', views.group_posts, name='group_list'),
     path('search/', views.search, name='search_posts'),
     path('profile/<str:username>',
-         views.profile, name='profile'),  # TODO - найти и изменить все "posts_author"
+         views.profile, name='profile'),
     path('group/<slug:slug>/<int:post_id>/',
          views.post_detail, name='post_detail'),
     path('group/<int:post_id>',

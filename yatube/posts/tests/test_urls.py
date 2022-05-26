@@ -228,7 +228,13 @@ class TaskURLTests(TestCase):
         url_for_redirect = {
             reverse('posts:post_edit', kwargs={
                 'post_id': self.post_two.pk}): STATUS_302,
-            reverse('posts:post_create'): STATUS_302
+            reverse('posts:post_create'): STATUS_302,
+            reverse('posts:profile_follow', kwargs={
+                    'username': self.auth_user.username,
+                    }): STATUS_302,
+            reverse('posts:profile_unfollow', kwargs={
+                    'username': self.auth_user.username,
+                    }): STATUS_302
         }
         for url, status in url_for_redirect.items():
             with self.subTest(url=url):
