@@ -2,7 +2,6 @@
 {# Для отображения картинок #}
 {% load thumbnail %}
 {% if page_obj %}
-{# Для вывода значения словаря, обращаемся к нему по ключу ({{ var_dict.key }}) #}
 {# Первые 30 букв поста #}
 {% block title %}
   {% for post in page_obj %}
@@ -28,10 +27,13 @@
         </h1>
         <div class="px-4 pt-5">
           <p class="blog-post-meta">
-          автор: <a class="text-white" href="{% url 'posts:posts_author' username=post.author%}"<b>{{ post.author.get_full_name }}</b></a> | 
-          дата публикации: <b>{{ post.pub_date|date:"d M Y" }}</b>
+          автор: <a class="text-white" href="{% url 'posts:profile' username=post.author%}"><b>{{ post.author.get_full_name }}</b></a> | 
+          дата: <b>{{ post.pub_date|date:"d M Y" }}</b>
           {% if post.group %}
-             | рубрика: <a class="text-white" href="{% url 'posts:group_list' slug=post.group.slug %}"<b>{{ post.group.title }}</b></a>
+             | рубрика: <a class="text-white" href="{% url 'posts:group_list' slug=post.group.slug %}"><b>{{ post.group.title }}</b></a>
+          {% endif %}
+          {% if post.comments.exists %}
+            | комментариев: <b>{{ post.comments.count }}</b>
           {% endif %}
           </p>
         </div>
@@ -39,7 +41,7 @@
           {% if user.is_authenticated %}
           <div class="px-4 pt-5">
             <p class="blog-post-meta">
-              <a class="text-white" href="{% url 'posts:post_edit' post_id=post.pk %}"<b>Редактировать запись</b></a>
+              <a class="text-white" href="{% url 'posts:post_edit' post_id=post.pk %}"><b>Редактировать запись</b></a>
             </p>
           </div>
           {% endif %}

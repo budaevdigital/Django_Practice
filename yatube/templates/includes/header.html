@@ -23,11 +23,11 @@
           {% if user.is_authenticated %} 
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle {% if view_name  == 'about:author' %}text-white{% else %} text-secondary {% endif %}"
-              href="#" id="dropdown07" data-bs-toggle="dropdown" aria-expanded="false">Профиль</a>
+              href="#" id="dropdown07" data-bs-toggle="dropdown" aria-expanded="false">Настройки</a>
             <ul class="dropdown-menu" aria-labelledby="dropdown07">
-              <li><a class="dropdown-item" href="#">Настройки</a></li>
+              <li><a class="dropdown-item" href="{% url 'posts:profile' username=request.user.username %}">Профиль</a></li>
+              <li><a class="dropdown-item" href="{% url 'posts:follow_index' %}">Мои подписки</a></li>
               <li><a class="dropdown-item" href="{% url 'users:password_change_form' %}">Смена пароля</a></li>
-              <li><a class="dropdown-item" href="#">Котики</a></li>
             </ul>
           </li>
           {% endif %}

@@ -1,19 +1,24 @@
 # posts/views.py
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.cache import cache_page
-from .models import Post, Group, Comment, User
+# from django.views.decorators.cache import cache_page
+from .models import Post, Group, Comment, Follow
 from .forms import PostForm, CommentForm
+
+POSTS_ON_PAGES = 9
+
+User = get_user_model()
 
 
 # Кешируем страницу раз в 120 секунд
 # При прогоне тестов, желательно отключить
-@cache_page(60 * 2)
+# @cache_page(60 * 2)
 def index(request):
-    template = 'posts/group_posts.html'
+    template = 'posts/index.html'
     posts = Post.objects.order_by('-pub_date')
-    paginator = Paginator(posts, 9)
+    paginator = Paginator(posts, POSTS_ON_PAGES)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
@@ -30,7 +35,7 @@ def group_posts(request, slug):
     # Это аналог добавления
     # условия WHERE group_id = {group_id}
     posts = Post.objects.filter(group=group).order_by('-pub_date')
-    paginator = Paginator(posts, 9)
+    paginator = Paginator(posts, POSTS_ON_PAGES)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
@@ -40,21 +45,30 @@ def group_posts(request, slug):
     return render(request, template, context)
 
 
-def posts_author(request, username):
-    template = 'posts/group_posts.html'
-    posts = get_object_or_404(User, username=username)
+def profile(request, username):
+    template = 'posts/profile.html'
+    user = get_object_or_404(User, username=username)
     # Метод .filter позволяет ограничить поиск по критериям.
     # Это аналог добавления
     # условия WHERE group_id = {group_id}
-    author_posts = Post.objects.filter(author=posts).order_by('-pub_date')
+    author_posts = Post.objects.filter(author=user).order_by('-pub_date')
     count_author_posts = author_posts.count()
-    paginator = Paginator(author_posts, 9)
+    paginator = Paginator(author_posts, POSTS_ON_PAGES)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    following = (
+        request.user.is_authenticated and Follow.objects.filter(
+            user=request.user, author=user
+        ).exists()
+    )
+    user_is_author = request.user != user
     context = {
-        'title': f'Статьи автора {posts.get_full_name()}',
+        'title': f'Профиль пользователя {user.get_full_name()}',
         'page_obj': page_obj,
         'count_posts': count_author_posts,
+        'user': user,
+        'following': following,
+        'user_is_author': user_is_author
     }
     return render(request, template, context)
 
@@ -67,7 +81,7 @@ def search(request):
             search_post = Post.objects.filter(
                 text__contains=search_keyword).select_related(
                     'author').select_related('group')
-            paginator = Paginator(search_post, 9)
+            paginator = Paginator(search_post, POSTS_ON_PAGES)
             page_number = request.GET.get('page', 1)
             page_obj = paginator.get_page(page_number)
         else:
@@ -91,7 +105,7 @@ def post_detail(request, slug, post_id):
     # условия WHERE group_id = {group_id}
     if post_id and slug:
         posts = Post.objects.filter(group=group).filter(pk=post_id)
-        comments = Comment.objects.filter(post=post_id)
+        comments = Comment.objects.filter(post=post_id).order_by('-created')
         form = CommentForm(request.POST or None)
         if request.user.pk == posts[0].author.pk:
             is_author = True
@@ -110,7 +124,7 @@ def post_detail_whithout_group(request, post_id):
     is_author = False
     template = 'posts/post_detail.html'
     post = Post.objects.filter(pk=post_id)
-    comments = Comment.objects.filter(post=post_id)
+    comments = Comment.objects.filter(post=post_id).order_by('-created')
     form = CommentForm(request.POST or None)
     if post_id:
         if request.user.pk == post[0].author.pk:
@@ -146,11 +160,6 @@ def add_comment(request, post_id):
     except AttributeError:
         return redirect('posts:post_detail_whithout_group',
                         post_id=post_id)
-
-
-@login_required()
-def user_profile(request, username):
-    pass
 
 
 @login_required()
@@ -239,3 +248,36 @@ def post_create(request):
             'form': form,
             'title': create_title}
     return render(request, template, context)
+
+
+@login_required
+def follow_index(request):
+    template = 'posts/follow.html'
+    following_post_list = Post.objects.filter(
+        author__following__user=request.user).order_by('-pub_date')
+    empty_following = not following_post_list.exists()
+    paginator = Paginator(following_post_list, POSTS_ON_PAGES)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'title': 'Последние обновления на сайте',
+        'page_obj': page_obj,
+        'empty_following': empty_following
+    }
+    return render(request, template, context)
+
+
+@login_required
+def profile_follow(request, username):
+    author = get_object_or_404(User, username=username)
+    if request.user != author:
+        Follow.objects.get_or_create(user=request.user, author=author)
+    return redirect('posts:profile', username=username)
+
+
+@login_required
+def profile_unfollow(request, username):
+    author = get_object_or_404(User, username=username)
+    if request.user != author:
+        Follow.objects.filter(user=request.user, author=author).delete()
+    return redirect('posts:profile', username=username)

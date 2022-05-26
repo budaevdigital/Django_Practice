@@ -9,9 +9,8 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('group/<slug:slug>/', views.group_posts, name='group_list'),
     path('search/', views.search, name='search_posts'),
-    path('profile/<str:username>/', views.user_profile, name='profile'),
-    path('profile/<str:username>/posts/',
-         views.posts_author, name='posts_author'),
+    path('profile/<str:username>',
+         views.profile, name='profile'),  # TODO - найти и изменить все "posts_author"
     path('group/<slug:slug>/<int:post_id>/',
          views.post_detail, name='post_detail'),
     path('group/<int:post_id>',
@@ -21,4 +20,9 @@ urlpatterns = [
     path('create/', views.post_create, name='post_create'),
     path('posts/<int:post_id>/comment',
          views.add_comment, name='add_comment'),
+    path('follow/', views.follow_index, name='follow_index'),
+    path('profile/<str:username>/follow/',
+         views.profile_follow, name='profile_follow'),
+    path('profile/<str:username>/unfollow/',
+         views.profile_unfollow, name="profile_unfollow"),
 ]

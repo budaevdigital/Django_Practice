@@ -1,54 +1,49 @@
 {# Для отображения картинок #}
 {% load thumbnail %}
-
 <div class="album py-5">
   <div class="container">
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
       {% for post in page_obj %}
         <div class="col ">
-          <div class="card shadow-sm d-flex align-content-stretch flex-wrap" >
+          <div class="card h-100 shadow-sm">
+            <div class="position-relative">
               {% thumbnail post.image "400x215" crop="center" unscale=True as im %}
-                <img class="card-img bd-placeholder-img card-img-top" src="{{ im.url }}">
+                <img class=" p-0 card-img img-thumbnail rounded user-select-none" src="{{ im.url }}">
               {% endthumbnail %}
               {% if not post.image %}
-                <svg class="card-img bd-placeholder-img card-img-top" fill="#55595c" width="400" height="225px">
-                    <rect width="100%" height="100%" fill="#55595c"></rect>
+              {% load static %}
+                <img class="p-0 card-img img-thumbnail rounded user-select-none" width="225" height="225" src="{% static 'img/400x225.jpg' %}">
               {% endif %}
-              {% if post.group %}   
-                <div class="card-img-overlay text-end">
-                  <text class="bg-dark p-1 rounded" x="75%" y="15%" fill="#eceeef" dy=".3em">
-                    {# Здесь указывается рубрика #}
-                      <a class="p2" style="color:white; text-decoration:none;" href="{% url 'posts:group_list' slug=post.group.slug %}">
-                        {{ post.group.title }}
-                      </a>
-                </div>
-              {% endif %}
-              </text>
-              {% if not post.image %}
-                </svg>
-              {% endif %}
-            <div class="card-body">
-              <h3 class="mb-0">{{ post.text|title|truncatewords:7 }}</h3>
-              <p class="card-text">
-                {{ post.text|linebreaksbr|truncatewords:25 }}
-              </p>
-              <div class="d-flex justify-content-between align-items-center">
-                <div class="btn-group">
-                    {% if post.group %}
-                      <a href="{% url 'posts:post_detail' slug=post.group.slug post_id=post.pk %}"
-                    {% else %} 
-                      <a href="{% url 'posts:post_detail_whithout_group' post_id=post.pk %}"
-                    {% endif %}
-                    class="text-sky-500 hover:text-sky-600">
-                    <button type="button" class="btn btn-m btn-outline-secondary">Читать &rarr;</button>
+              {% if post.group %}
+                {# Здесь указывается рубрика #}
+                  <a class="position-absolute bg-dark rounded p-1" 
+                    style="color:white; text-decoration:none; right:5%; top:5%;" 
+                    href="{% url 'posts:group_list' slug=post.group.slug %}">
+                    {{ post.group.title }}
                   </a>
-                </div>
-                <small class="blog-post-meta text-muted inline-item">
-                  {# Дата и автор #}
-                  {{ post.pub_date|date:"d M Y" }} 
-                  <a class="text-muted" href="{% url 'posts:posts_author' username=post.author%}" <b> {{ post.author.get_full_name }}</b></a>
-                </small>
+              {% endif %}
+            </div>
+            <div class="card-body">
+              <h3 class="mb-0 card-title">{{ post.text|title|truncatewords:7 }}</h3>
+              <p class="card-text">
+                {{ post.text|linebreaksbr|truncatewords:15 }}
+              </p>
+            </div>
+            <div class="d-flex justify-content-between align-items-center card-footer">
+              <div class="btn-group m-2 ">
+                  {% if post.group %}
+                    <a href="{% url 'posts:post_detail' slug=post.group.slug post_id=post.pk %}" class="text-sky-500 hover:text-sky-600">
+                  {% else %} 
+                    <a href="{% url 'posts:post_detail_whithout_group' post_id=post.pk %}" class="text-sky-500 hover:text-sky-600">
+                  {% endif %}
+                  <button type="button" class="btn btn-m btn-outline-secondary">Читать &rarr;</button>
+                </a>
               </div>
+              <small class="blog-post-meta text-muted inline-item d-md-none d-lg-none d-xl-block">
+                {# Дата и автор #}
+                {{ post.pub_date|date:"d M Y" }}
+                <a class="text-muted" href="{% url 'posts:profile' username=post.author %}"><b>{{ post.author.get_full_name }}</b></a>
+              </small>
             </div>
           </div>
         </div>

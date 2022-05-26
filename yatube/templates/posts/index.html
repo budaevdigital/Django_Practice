@@ -1,24 +1,24 @@
 {% extends 'base.html' %}
 
-{# Для вывода значения словаря, обращаемся к нему по ключу ({{ var_dict.key }}) #}
 {% block title %}{{ title }}{% endblock %}
-
 
 <section class="bg-light">
   {% block body %}
     <div class="px-4 pt-5 my-5 text-center">
-      <h1 class="display-4 fw-bold">
-        {% if  count_posts %}
-          {{ title|title  }} ({{ count_posts }} статей)
-        {% else %}
+      <h1 class="fw-bold">
           {{ title|title }} 
-        {% endif %}
       </h1>
     </div>
   {% endblock %}
 
-  {% block content %}
-    {% include 'posts/includes/lists_posts.html' %}
+{% block content %}
+  {% include "posts/includes/switcher.html" with index=True %}
+  {% if empty_following %}
+    <div class="px-4 pt-5 my-5 text-center">
+      <p>У вас пока нет избранных авторов<p>
+    </div>
+  {% endif %}
+  {% include 'posts/includes/lists_posts.html' %}
+  {% include 'posts/includes/paginator.html' %}
 </section> 
-{% include 'posts/includes/paginator.html' %}
 {% endblock %}
