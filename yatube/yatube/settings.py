@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'sorl.thumbnail',
     'debug_toolbar',
+    'rest_framework',
 ]
 # Приложение staticfiles необходимо для работы приложения DjDT
 

@@ -1,4 +1,5 @@
 # posts/views.py
+from rest_framework import generics
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import get_user_model
@@ -6,10 +7,21 @@ from django.contrib.auth.decorators import login_required
 # from django.views.decorators.cache import cache_page
 from .models import Post, Group, Comment, Follow
 from .forms import PostForm, CommentForm
+from .serializers import PostSerializer
 
 POSTS_ON_PAGES = 9
 
 User = get_user_model()
+
+
+class APIPostList(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+
+class APIPostDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
 
 
 # Кешируем страницу раз в 120 секунд
