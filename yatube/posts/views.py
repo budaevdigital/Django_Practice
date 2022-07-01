@@ -30,20 +30,24 @@ class PostViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly, AuthorPermission,)
 
     # queryset во вьюсете не указываем
     # Нам тут нужны не все комментарии, а только связанные с id
     # Поэтому нужно переопределить метод get_queryset и применить фильтр
     def get_queryset(self):
         # Получаем id из эндпоинта
-        id = self.kwargs.get("post_id")
+        id = self.kwargs.get('post_id')
         # И отбираем только нужные комментарии
         post = get_object_or_404(Post, id=id)
         new_queryset = post.comments.all()
         return new_queryset
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        id = self.kwargs.get('post_id')
+        post = get_object_or_404(Post, id=id)
+        serializer.save(author=self.request.user, post=post)
 
 
 class GroupViewSet(viewsets.ModelViewSet):
