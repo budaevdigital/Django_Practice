@@ -8,11 +8,13 @@
 
 ## Технологии
 
-asgiref==3.5.1
-
 Django==4.0.4
 
-sqlparse==0.4.2
+django-debug-toolbar==3.4.0
+
+djangorestframework==3.13.1
+
+flake8==4.0.1
 
 ## Запуск проекта
 - Скопируйте файлы проекта в нужную директорию
