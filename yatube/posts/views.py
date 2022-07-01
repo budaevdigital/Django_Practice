@@ -1,32 +1,62 @@
 # posts/views.py
-from rest_framework import generics
+from rest_framework import viewsets, permissions
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-# from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import cache_page
+from .permissions import AuthorPermission
 from .models import Post, Group, Comment, Follow
 from .forms import PostForm, CommentForm
-from .serializers import PostSerializer
+from .serializers import (PostSerializer,
+                          CommentSerializer, GroupSerializer)
 
 POSTS_ON_PAGES = 9
 
 User = get_user_model()
 
 
-class APIPostList(generics.ListCreateAPIView):
+class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+        AuthorPermission
+    )
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
-class APIPostDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+
+    # queryset во вьюсете не указываем
+    # Нам тут нужны не все комментарии, а только связанные с id
+    # Поэтому нужно переопределить метод get_queryset и применить фильтр
+    def get_queryset(self):
+        # Получаем id из эндпоинта
+        id = self.kwargs.get("post_id")
+        # И отбираем только нужные комментарии
+        post = get_object_or_404(Post, id=id)
+        new_queryset = post.comments.all()
+        return new_queryset
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    permission_classes = (
+        permissions.IsAuthenticatedOrReadOnly,
+    )
 
 
 # Кешируем страницу раз в 120 секунд
 # При прогоне тестов, желательно отключить
-# @cache_page(60 * 2)
+@cache_page(60 * 2)
 def index(request):
     template = 'posts/index.html'
     posts = Post.objects.order_by('-pub_date')
@@ -200,6 +230,10 @@ def post_edit(request, post_id):
                 # при редиректе
                 username = request.user.username
                 return redirect('posts:profile', username=username)
+            context = {
+                'form': form,
+                'title': edit_title}
+            return render(request, template, context)
             # выводим ошибки формы, если данные  не прошли валидацию
         else:
             # Если метод НЕ POST!

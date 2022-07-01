@@ -15,6 +15,8 @@ class PostForm(forms.ModelForm):
                            help_text='Напишите лучшую статью',
                            validators=[validate_not_empty_or_less])
 
+    image = forms.ImageField(required=False)
+
     class Meta():
         model = Post
         fields = ('group', 'text', 'image')

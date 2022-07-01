@@ -16,6 +16,13 @@ class Group(models.Model):
         return self.title
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+
 class Post(models.Model):
     text = models.TextField(
         verbose_name='Текст поста',
@@ -50,6 +57,8 @@ class Post(models.Model):
         # Поле для картинки (необязательное)
         blank=True
     )
+    # Связь будет описана через вспомогательную модель TagPost
+    tags = models.ManyToManyField(Tag, through='TagPost', blank=True)
 
     class Meta:
         # переопределяем параметры фильтра и отображение имени
@@ -63,6 +72,15 @@ class Post(models.Model):
     # выведем 15 символов текста
     def __str__(self):
         return self.text[:15]
+
+
+# В этой модели будут связаны id тегов и id поста
+class TagPost(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.tag} {self.post}'
 
 
 class Comment(models.Model):

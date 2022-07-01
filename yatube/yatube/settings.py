@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'debug_toolbar',
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
 ]
 # Приложение staticfiles необходимо для работы приложения DjDT
 
@@ -100,6 +102,18 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
+}
+
+# Обязательная аутентификация и доступ только по токену
+# ограничение доступа настраивается с помощью пермишенов
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
 }
 
 
