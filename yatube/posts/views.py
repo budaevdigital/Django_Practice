@@ -20,6 +20,7 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (
+        # Устанавливаем разрешение
         permissions.IsAuthenticatedOrReadOnly,
         AuthorPermission
     )
@@ -27,11 +28,17 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def perform_update(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def perform_delete(self, serializer):
+        serializer.save(author=self.request.user)
+
 
 class CommentViewSet(viewsets.ModelViewSet):
-    serializer_class = CommentSerializer
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly, AuthorPermission,)
+    serializer_class = CommentSerializer
 
     # queryset во вьюсете не указываем
     # Нам тут нужны не все комментарии, а только связанные с id
@@ -45,6 +52,16 @@ class CommentViewSet(viewsets.ModelViewSet):
         return new_queryset
 
     def perform_create(self, serializer):
+        id = self.kwargs.get('post_id')
+        post = get_object_or_404(Post, id=id)
+        serializer.save(author=self.request.user, post=post)
+
+    def perform_update(self, serializer):
+        id = self.kwargs.get('post_id')
+        post = get_object_or_404(Post, id=id)
+        serializer.save(author=self.request.user, post=post)
+
+    def perform_delete(self, serializer):
         id = self.kwargs.get('post_id')
         post = get_object_or_404(Post, id=id)
         serializer.save(author=self.request.user, post=post)
