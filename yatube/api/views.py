@@ -7,6 +7,13 @@ from posts.models import Post, Group
 
 
 class PostViewSet(viewsets.ModelViewSet):
+    """
+    Позволяет просматривать посты всем НЕ-авторизованным пользователям.
+    Авторизованным пользователям, доступны действия:
+        - создавать;
+        - редактировать (свои);
+        - удалять (свои).
+    """
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (
@@ -63,4 +70,3 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly,
     )
-

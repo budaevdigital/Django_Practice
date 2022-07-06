@@ -32,6 +32,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '[::1]',
     'testserver',
+    'localhost:3000',
 ]
 
 # Добавьте IP адреса, при обращении с которых будет доступен DjDT
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    # Приложение staticfiles необходимо для работы приложения DjDT
     'django.contrib.staticfiles',
     'sorl.thumbnail',
     'debug_toolbar',
@@ -60,7 +62,7 @@ INSTALLED_APPS = [
     'djoser',
     'drf_yasg',
 ]
-# Приложение staticfiles необходимо для работы приложения DjDT
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -132,6 +134,15 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
