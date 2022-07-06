@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions
 from django.shortcuts import get_object_or_404
-from permissions import AuthorPermission
-from serializers import (PostSerializer,
-                         CommentSerializer, GroupSerializer)
+from .permissions import AuthorPermission
+from .serializers import (PostSerializer,
+                          CommentSerializer, GroupSerializer)
 from posts.models import Post, Group
 
 
