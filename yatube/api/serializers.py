@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import (Post, Group,
-                     Tag, TagPost,
-                     Comment)
+from posts.models import (Post, Group,
+                          Tag, TagPost,
+                          Comment)
 
 
 class TagSerializer(serializers.ModelSerializer):

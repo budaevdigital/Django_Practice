@@ -1,17 +1,7 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (TokenObtainPairView,
-                                            TokenRefreshView)
+from django.urls import path
 from . import views
 
 app_name = 'posts'
-router = DefaultRouter()
-router.register('posts', views.PostViewSet, basename='post')
-router.register(
-     r'posts/(?P<post_id>\d+)/comments',
-     views.CommentViewSet,
-     basename='comment')
-router.register('groups', views.GroupViewSet, basename='group')
 
 urlpatterns = [
     # в случаях коллизий с одинаковыми адресами
@@ -35,9 +25,4 @@ urlpatterns = [
          views.profile_follow, name='profile_follow'),
     path('profile/<str:username>/unfollow/',
          views.profile_unfollow, name="profile_unfollow"),
-    path('api/v1/', include(router.urls)),
-    path('api/v1/api-token-auth/',
-         TokenObtainPairView.as_view(), name='obtain_auth_token'),
-    path('api/v1/api-token-auth/refresh',
-         TokenRefreshView.as_view(), name='refresh_auth_token'),
 ]
