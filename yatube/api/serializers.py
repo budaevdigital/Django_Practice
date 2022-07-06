@@ -7,7 +7,7 @@ from posts.models import (Post, Group,
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        field = ('id', 'name')
+        fields = ('id', 'name')
 
 
 class PostSerializer(serializers.ModelSerializer):
