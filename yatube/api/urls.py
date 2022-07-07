@@ -12,6 +12,7 @@ router.register(
      basename='comment')
 router.register('posts', views.PostViewSet, basename='post')
 router.register('groups', views.GroupViewSet, basename='group')
+router.register('follows', views.FollowViewSet, basename='follow')
 
 urlpatterns = [
     path('v1/', include(router.urls)),
