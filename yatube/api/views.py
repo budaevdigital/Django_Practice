@@ -100,7 +100,8 @@ class FollowViewSet(viewsets.ModelViewSet):
         FollowPermission
     )
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('user__username', 'author__username')
+    # '=' означает, что искать будет только по точному совпадению
+    search_fields = ('=user__username', '=author__username')
 
     def get_queryset(self):
         # сптсок всех подписок можно получить в Follow.objects.all()
