@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from .permissions import AuthorPermission, FollowPermission
 from .serializers import (PostSerializer, CommentSerializer,
                           GroupSerializer, FollowSerializer)
-from posts.models import Post, Group, Follow
+from posts.models import Post, Group
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -35,6 +35,13 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """
+    Позволяет просматривать комментарии всем НЕ-авторизованным пользователям.
+    Авторизованным пользователям, доступны действия:
+        - создавать;
+        - редактировать (свои);
+        - удалять (свои).
+    """
     permission_classes = (
         permissions.IsAuthenticatedOrReadOnly, AuthorPermission,)
     serializer_class = CommentSerializer
@@ -67,6 +74,9 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class GroupViewSet(viewsets.ModelViewSet):
+    """
+    Позволяет просматривать рубрики всем НЕ-авторизованным пользователям.
+    """
     pagination_class = None
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
@@ -76,6 +86,13 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 
 class FollowViewSet(viewsets.ModelViewSet):
+    """
+    Позволяет просматривать подписки на авторов только
+    авторизованным пользователям.
+    Авторизованным пользователям, доступны действия:
+        - просмотр подписок;
+        - создания подписок.
+    """
     pagination_class = None
     serializer_class = FollowSerializer
     permission_classes = (
@@ -83,7 +100,7 @@ class FollowViewSet(viewsets.ModelViewSet):
         FollowPermission
     )
     filter_backends = (filters.SearchFilter,)
-    search_field = ('user__username', 'author__username')
+    search_fields = ('user__username', 'author__username')
 
     def get_queryset(self):
         # сптсок всех подписок можно получить в Follow.objects.all()
@@ -94,4 +111,4 @@ class FollowViewSet(viewsets.ModelViewSet):
         return new_queryset
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        serializer.save(user=self.request.user)

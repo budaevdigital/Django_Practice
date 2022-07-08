@@ -86,7 +86,13 @@ class FollowSerializer(serializers.ModelSerializer):
         # сравним поле пользователя с автором
         # ограничим возможность подписки на самого себя
         user = self.context.get('request').user
+        for count in user.follower.all():
+            if value == count.author:
+                raise serializers.ValidationError(
+                    'Вы уже подписанны на этого автора')
+        # follower = user.following
         if user == value:
             raise serializers.ValidationError(
                 'Нельзя подписаться на самого себя')
+
         return value
