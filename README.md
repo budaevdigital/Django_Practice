@@ -78,9 +78,19 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-- Для запуска сервера, в папке с файлом manage.py выполните команду:
-```bash
-python manage.py runserver
+> Не забудьте поменять IP сервера на свой в настройках `settings.py`
+```python
+ALLOWED_HOSTS = [
+    'ваш домен',
+    'ваш IP хостинга',
+    ...
+]
 ```
-- Можете переходить в браузере на http://127.0.0.1:8000/ и играться с проектом :)
 
+- Для верности, можно перегрузить настроенный `nginx` и `gunicorn`:
+```bash
+sudo systemctl reload nginx
+sudo systemctl restart gunicorn
+```
+
+Всё! Проект должен быть готов к запуску.
