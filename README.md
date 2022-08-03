@@ -1,20 +1,35 @@
 # Django-Practice.Yandex-Course
 
+![Django Love](_assets/django_love.png)
+
 ## Описание
 
 Тренировочный проект на Django.
+
+Для просмотра примере готового проекта, можно перейти по адресу:
+
+```text
+https://django.hopto.org
+```
+P.S. Если сайте не работает, значит сервер был отключен.
 
 Сайт-блог, позволяющий публиковать и редактировать посты, добавлять комментарии к постам, подписываться на авторов и сообщества.
 
 ## Технологии
 
-Django==4.0.4
+Django
 
-django-debug-toolbar==3.4.0
+django-debug-toolbar
 
-djangorestframework==3.13.1
+djangorestframework
 
-flake8==4.0.1
+PostgreSQL
+
+Pillow
+
+Gunicorn c Nginx
+
+>Полный список вы можете посмотреть в `requirements.txt` (yatube/requirements.txt)
 
 ## Запуск проекта
 - Скопируйте файлы проекта в нужную директорию
