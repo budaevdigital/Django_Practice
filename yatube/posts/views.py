@@ -15,7 +15,7 @@ User = get_user_model()
 
 # Кешируем страницу раз в 120 секунд
 # При прогоне тестов, желательно отключить
-@cache_page(60 * 2)
+# @cache_page(60 * 2)
 def index(request):
     template = 'posts/index.html'
     posts = Post.objects.order_by('-pub_date')
@@ -26,7 +26,7 @@ def index(request):
         'title': 'Последние обновления на сайте',
         'page_obj': page_obj,
     }
-    return render(request, template, context)
+    return render(request, template, context)   
 
 
 def group_posts(request, slug):
