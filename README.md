@@ -48,10 +48,20 @@ python -m pip install -r requirements.txt
 
 - В проекте используется переменные в виртуальном окружении и библиотека os.environ для их загрузки.
 
+> Для запуска проекта потребуется настроенный PostgreSQL!
+
 - В директории `yatube`, где расположен файл settings.py, создайте новый файл .env и пропишите:
 ```
-SECRET_KEY=<Ваш_секретный_ключ>
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=<Имя базы в PostgreSQL>
+POSTGRES_USER=<Пользователь PostgreSQL>
+POSTGRES_PASSWORD=<Пароль PostgreSQL>
+DB_HOST=127.0.0.1
+DB_PORT=5432
+SC_KEY=<Любой сгенерированный пароль для Django>
+SENTRY_DNS=<Ваш API ключ в Sentry> # Если нужен мониторинг проекта. Можно убрать
 ```
+
 - Пароль можно сгенерировать и скопировать из терминала, введя команду:
 ```
 openssl rand -hex 32
