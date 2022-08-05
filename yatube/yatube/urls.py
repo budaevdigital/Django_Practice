@@ -35,7 +35,7 @@ urlpatterns = [
 ]
 
 handler404 = 'core.views.page_not_found'
-# handler500 = 'core.views.server_error'
+handler500 = 'core.views.server_error'
 handler403 = 'core.views.permission_denied'
 
 schema_view = get_schema_view(
@@ -63,11 +63,11 @@ urlpatterns += [
                                 cache_timeout=0), name='schema-redoc'),
 ]
 
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 # в режиме разработчика Django не раздаёт картинки, поэтому
 # нужно переопределить это поведение Django в режиме DEBUG=True
 if settings.DEBUG:
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT)
     import debug_toolbar
     urlpatterns += (path('__debug__/', include(debug_toolbar.urls)),)
