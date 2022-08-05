@@ -9,8 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-# import sentry_sdk
-# from sentry_sdk.integrations.django import DjangoIntegration
+
 from dotenv import load_dotenv
 import os
 from pathlib import Path
@@ -18,25 +17,28 @@ from datetime import timedelta
 
 load_dotenv()
 
-# sentry_sdk.init(
-#     dsn=os.getenv('SENTRY_DNS'),
-#     integrations=[
-#         DjangoIntegration(),
-#     ],
+GLOBAL_BUILD = os.getenv('GLOBAL_BUILD')
 
-#     # Set traces_sample_rate to 1.0 to capture 100%
-#     # of transactions for performance monitoring.
-#     # We recommend adjusting this value in production.
-#     traces_sample_rate=1.0,
+if GLOBAL_BUILD:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
 
-#     # If you wish to associate users to errors (assuming you are using
-#     # django.contrib.auth) you may enable sending PII data.
-#     send_default_pii=True
-# )
+    sentry_sdk.init(
+        dsn=os.getenv('SENTRY_DNS'),
+        integrations=[
+            DjangoIntegration(),
+        ],
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0,
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=True
+    )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
@@ -45,7 +47,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SC_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # добавьте в env, site - название контейнера для сборки в Docker
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
