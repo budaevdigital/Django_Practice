@@ -36,22 +36,43 @@ Gunicorn c Nginx
 python -m venv venv
 ```
 
-- Установите все необходимые библеотеки проекта
+- Установите все необходимые зависимости проекта
 ```bash
 python -m pip install -r requirements.txt
 ``` 
 
 ### Дополнительные настройки
 
-- В проекте используется переменные в виртуальном окружении и библиотека os.environ для их загрузки.
 
 > Для запуска проекта потребуется настроенный PostgreSQL!
 
-- В директории `yatube`, где расположен файл settings.py, создайте новый файл .env и пропишите:
+```bash
+sudo -u postgres psql
+CREATE DATABASE yatube;
+CREATE USER yatube_user WITH ENCRYPTED PASSWORD 'password'; 
+GRANT ALL PRIVILEGES ON DATABASE yatube TO yatube_user;
+```
+- Приложение подготовлено к работе с сервисом мониторинга ошибок `Sentry`, если не планируете его использовать - закомментируйте следующий фрагмент кода в yatube/settings.py:
+
+```bash
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+sentry_sdk.init(
+    dsn=os.getenv('SENTRY_DNS'),
+    integrations=[
+        DjangoIntegration(),
+    ],
+    traces_sample_rate=1.0,
+    send_default_pii=True
+)
+```
+
+- В проекте используется переменные в виртуальном окружении и библиотека dotenv для их загрузки. В директории `yatube`, где расположен файл settings.py, создайте новый файл .env и пропишите:
 ```
 DB_ENGINE=django.db.backends.postgresql
-DB_NAME=<Имя базы в PostgreSQL>
-POSTGRES_USER=<Пользователь PostgreSQL>
+DB_NAME=yatube
+POSTGRES_USER=yatube_user
 POSTGRES_PASSWORD=<Пароль PostgreSQL>
 DB_HOST=127.0.0.1
 DB_PORT=5432
