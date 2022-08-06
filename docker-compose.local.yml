@@ -28,7 +28,7 @@ services:
       - static_value:/app/static
       # Данные, хранящиеся в томе media_value, будут доступны в контейнере web        
       # через директорию /app/media/
-      - media_value:/media
+      - media_value:/app/media
     # «зависит от»,
     depends_on:
       - db  
@@ -55,7 +55,7 @@ services:
 
       # Данные, хранящиеся в томе media_value, будут доступны в контейнере nginx       
       # через директорию /var/html/media/
-      - media_value:/media
+      - media_value:/app/media
 
     depends_on:
       # Контейнер nginx должен быть запущен после контейнера web
