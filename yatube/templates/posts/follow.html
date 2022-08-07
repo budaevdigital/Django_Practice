@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Подписки{% endblock %}
+
+<section class="bg-light">
+  {% block body %}
+    <div class="px-4 pt-5 my-5 text-center">
+      <h1 class="fw-bold">
+        Подписки на авторов
+      </h1>
+    </div>
+  {% endblock %}
+
+{% block content %}
+
+  {# передаем значения "follow" дальше в "include"... с помощью "with" #}
+  {% include "posts/includes/switcher.html" with follow=True %}
+    {% if empty_following %}
+      <div class="px-4 pt-5 my-5 text-center">
+        <p>У вас пока нет избранных авторов<p>
+      </div>
+    {% endif %}
+  {% include 'posts/includes/lists_posts.html'%}
+  {# проверяем наличие других страниц и отображаем паджинатор, только если они есть #}
+  {% if page_obj.has_other_pages %}
+    {% include 'posts/includes/paginator.html' %}
+  {% endif %}
+</section>
+{% endblock %}

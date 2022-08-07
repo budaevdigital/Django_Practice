@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ title }} 
+{% endblock %}
+
+<section class="bg-light">
+  {% block body %}
+    <div class="px-4 pt-5 my-5 text-center">
+      <h1 class="fw-bold">
+        Все посты {{ username.get_full_name }}
+      </h1>
+      <div class="h3 text-muted">
+        <!-- username автора -->
+        @{{ username.username }}
+      </div>
+      {% if count_posts %}
+      <h3>
+        Всего постов: {{ count_posts }}
+      </h3>
+      {% endif %}
+      <div class="h6 text-muted">
+        Подписчиков: {{ username.following.count }} <br/>
+        Подписан: {{ username.follower.count }}
+      </div>
+      {% if user.is_authenticated %}  
+        {% if user_is_not_author %}
+          <div class="pt-2 mx-auto">
+            {% if following %}  
+              <a class="btn btn-lg btn-outline-danger" href="{% url 'posts:profile_unfollow' username=username.username %}" role="button" >Отписаться</a>   
+            {% else %}
+              <a class="btn btn-lg btn-success" href="{% url 'posts:profile_follow' username=username.username %}" role="button" >Подписаться</a>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  {% endblock %}
+  {% block content %}
+    {% include 'posts/includes/lists_posts.html' %}
+</section> 
+{% include 'posts/includes/paginator.html' %}
+{% endblock %}
