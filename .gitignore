@@ -135,3 +135,6 @@ dmypy.json
 
 # My VsCode settings
 .vscode
+
+!yatube/templates/posts/profile.html
+!yatube/templates/posts/follow.html
