@@ -14,7 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     # адрес файла, где хранятся переменные окружения (до перемещения)    
     env_file:
-      - ./.env.local
+      - ./yatube/yatube/.env
   django:
     build: .
     # Выполнить запуск миграции и сервера разработки
@@ -33,7 +33,7 @@ services:
     depends_on:
       - db  
     env_file:
-      - ./.env.local 
+      - ./yatube/yatube/.env
 
   # Новый контейнер   
   nginx:
