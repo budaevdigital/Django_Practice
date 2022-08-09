@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.9'
 
 services:
   db:
@@ -15,6 +15,7 @@ services:
     restart: always
     build: .
     command: sh -c "python manage.py migrate &&
+                    python manage.py collectstatic --noinput &&
                     gunicorn --bind 0.0.0.0:8000 yatube.wsgi:application"
     container_name: site
     volumes:
@@ -29,7 +30,10 @@ services:
     image: certbot/certbot
     container_name: certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --dry-run; sleep 12h & wait $${!}; done;'"
-    command: certonly --webroot --webroot-path=/var/www/certbot --email budaev.digital@yandex.>
+    # Измените email и domain на свои значения
+    command: sh -c "certonly --reinstall --webroot --webroot-path=/var/www/certbot 
+                   --email budaev.digital@yandex --agree-tos --no-eff-email 
+                   -d dmitrybudaev.ru,www.dmitrybudaev.ru --expand"
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt
       - /app/certbot/www:/var/www/certbot
