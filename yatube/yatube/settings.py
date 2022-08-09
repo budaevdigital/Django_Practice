@@ -231,4 +231,7 @@ CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }}
+    }
+}
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO','https')
