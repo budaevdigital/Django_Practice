@@ -49,8 +49,6 @@ ALLOWED_HOSTS=django 127.0.0.1 0.0.0.0 <ваш.IP.хостинга> <ваше-д
 openssl rand -hex 32
 ```
 
-
-
 ## Запуск проекта с помощью Docker
 
 > Прежде, чем начать, установите Docker: [Как установить Docker](https://docs.docker.com/engine/install/)
@@ -92,7 +90,30 @@ docker exec -it <ID_container> bash # зайдёт в терминал в сам
 python manage.py createsuperuser
 ```
 
+### Если возникли проблемы с получением SSL-сертификата
+
+> Перед первым запуском обязательно **закомментируйте** указанные блоки в `prod.conf` конфигурации Nginx
+
+Если возникли проблемы с получением сертификата, введите команду при запущенном докере и дождитесь успешного ответа.
+
+```bash
+docker-compose run --rm --entrypoint "\
+certbot certonly --webroot -w /var/www/certbot \
+  # укажите свой email
+  --email budaev.digital@yandex.ru \
+  # укажите свой домен
+  -d dmitrybudaev.ru \
+  -d www.dmitrybudaev.ru \
+  --rsa-key-size 2048 \
+  --agree-tos \
+  --force-renewal" certbot
+```
+
+После получения успешного ответа, можно раскомментировать блоки `listen 443 ssl;` в `prod.conf` конфигурации Nginx.
+
+
 ## Запуск проекта обычным способом
+
 - Скопируйте файлы проекта в нужную директорию
 
 - Активируйте виртуальное окружение venv в нужной директории
