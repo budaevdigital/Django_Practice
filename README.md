@@ -1,4 +1,4 @@
-# Django-Practice.Yandex-Course
+# Django Blog and RESTApi
 
 ![Django Love](_assets/django_love.png)
 
