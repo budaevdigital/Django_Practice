@@ -1,4 +1,4 @@
-# Django Blog and RESTApi
+# Django Blog and REST API (DRF)
 
 ![Django Love](_assets/django_love.png)
 
