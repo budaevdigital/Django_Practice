@@ -22,6 +22,7 @@
 - PostgreSQL
 - Pillow
 - Gunicorn c Nginx
+- Sentry
 
 >Полный список вы можете посмотреть в `requirements.txt` (yatube/requirements.txt)
 
